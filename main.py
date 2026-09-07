@@ -8,6 +8,7 @@ Esta versión:
 - Mantiene reclutamiento, tickets, selector de posiciones y slash commands.
 - Usa tipografía Unicode decorativa en categorías, canales y roles.
 
+
 Requiere:
     discord.py>=2.6,<3.0
 """
