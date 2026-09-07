@@ -1212,7 +1212,7 @@ class WelcomeView(discord.ui.View):
             )
 
     @discord.ui.button(
-        label="Quiero probar",
+        label="HACER PRUEBA AHORA",
         emoji="🧪",
         style=discord.ButtonStyle.success,
         custom_id="santacho:welcome:tryout"
@@ -1946,18 +1946,16 @@ async def refresh_public_player_panels(guild):
     await refresh_stats_panel(guild)
     await refresh_mvp_panel(guild)
 
-    await refresh_public_player_panels(guild)
-
-    await ensure_external_bot_panels(guild)
-    await ensure_music_panel(guild)
-
 
 # =========================================================
 # BIENVENIDA AUTOMÁTICA A NUEVOS MIEMBROS
 # =========================================================
 
-async def send_member_welcome(member: discord.Member):
-    """Publica una bienvenida personalizada cuando alguien entra al servidor."""
+async def send_member_welcome(member: discord.Member, send_dm: bool = True):
+    """
+    Publica una bienvenida personalizada y lleva al nuevo miembro
+    directamente al formulario de pruebas.
+    """
     if member.bot:
         return False
 
@@ -1973,14 +1971,17 @@ async def send_member_welcome(member: discord.Member):
     socials_ch = text_by_name(guild, CH_SOCIALS)
 
     embed = discord.Embed(
-        title="🟡⚫ 𝐍𝐔𝐄𝐕𝐎 𝐌𝐈𝐄𝐌𝐁𝐑𝐎 — 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
+        title="🧪 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 — 𝐄𝐌𝐏𝐈𝐄𝐙𝐀 𝐓𝐔 𝐏𝐑𝐔𝐄𝐁𝐀",
         description=(
-            f"Bienvenido {member.mention} a **Santacho FC**. 🦅\n\n"
-            "**El escudo está primero.**\n"
-            "Antes de empezar, revisa lo siguiente:\n\n"
-            f"📜 {rules_ch.mention if rules_ch else 'Reglas'}\n"
-            f"🧪 {try_ch.mention if try_ch else 'Pruebas'}\n"
-            f"⚽ {general_ch.mention if general_ch else 'La cancha'}\n"
+            f"Bienvenido {member.mention} a **Santacho FC**. 🦅\\n\\n"
+            "### ⚽ Tu primer paso es hacer la prueba\\n"
+            "Pulsa **🧪 HACER PRUEBA AHORA** debajo de este mensaje y completa "
+            "el formulario con tu gamertag, posiciones y disponibilidad.\\n\\n"
+            "Cuando lo envíes, el bot abrirá **tu canal privado de prueba** "
+            "para que el staff pueda revisar tu solicitud.\\n\\n"
+            f"📜 {rules_ch.mention if rules_ch else 'Reglas del club'}\\n"
+            f"🧪 {try_ch.mention if try_ch else 'Canal de pruebas'}\\n"
+            f"⚽ {general_ch.mention if general_ch else 'La cancha'}\\n"
             f"🌐 {socials_ch.mention if socials_ch else 'Redes sociales'}"
         ),
         color=GOLD,
@@ -1992,28 +1993,63 @@ async def send_member_welcome(member: discord.Member):
         pass
 
     embed.add_field(
-        name="👥 𝐌𝐈𝐄𝐌𝐁𝐑𝐎 #" + str(guild.member_count or "—"),
-        value="Bienvenido a la familia Santacho.",
+        name="🎯 𝐐𝐔É 𝐍𝐄𝐂𝐄𝐒𝐈𝐓𝐀𝐒",
+        value=(
+            "🎮 Gamertag / ID\\n"
+            "🌎 Edad, país y plataforma\\n"
+            "⚽ Posición principal y secundaria\\n"
+            "⏰ Horarios disponibles\\n"
+            "🏆 Experiencia y estilo de juego"
+        ),
         inline=False,
     )
+
+    embed.add_field(
+        name="🟡⚫ 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
+        value="**El escudo está primero.**",
+        inline=False,
+    )
+
     embed.set_footer(text="SANTACHO FC • Clubes Pro • FC27 • Est. 2024")
     embed.set_image(url="attachment://santacho_club.jpg")
 
     try:
         await channel.send(
-            content=f"👋 {member.mention}",
+            content=f"👋 {member.mention} — **tu prueba empieza aquí**",
             embed=embed,
             file=build_welcome_image_file(),
             view=WelcomeView(),
             allowed_mentions=discord.AllowedMentions(users=True, roles=False, everyone=False),
         )
-        return True
     except discord.Forbidden:
         print("❌ No tengo permiso para enviar la bienvenida en el canal.")
         return False
     except discord.HTTPException as exc:
         print(f"❌ Error enviando bienvenida: {exc}")
         return False
+
+    if send_dm:
+        try:
+            dm_embed = discord.Embed(
+                title="🧪 Tu prueba en Santacho FC",
+                description=(
+                    f"¡Bienvenido a **{guild.name}**! 🦅\\n\\n"
+                    "Para comenzar, completa tu solicitud de prueba desde el servidor.\\n\\n"
+                    + (
+                        f"➡️ **Ir al canal de pruebas:** {try_ch.jump_url}\\n\\n"
+                        if try_ch else
+                        ""
+                    )
+                    + "Dentro del servidor pulsa **🧪 HACER PRUEBA AHORA**."
+                ),
+                color=GOLD,
+            )
+            dm_embed.set_footer(text="SANTACHO FC • El escudo está primero.")
+            await member.send(embed=dm_embed)
+        except (discord.Forbidden, discord.HTTPException):
+            pass
+
+    return True
 
 
 # =========================================================
@@ -2529,7 +2565,7 @@ async def testbienvenida(interaction: discord.Interaction, jugador: Optional[dis
 
     target = jugador or interaction.user
     await interaction.response.defer(ephemeral=True)
-    ok = await send_member_welcome(target)
+    ok = await send_member_welcome(target, send_dm=False)
     if ok:
         await interaction.followup.send("✅ Bienvenida de prueba publicada.", ephemeral=True)
     else:
@@ -2623,7 +2659,7 @@ async def on_ready():
             pass
 
         print("\n[6/6] TERMINADO")
-        print("✅ Santacho FC V7.3 MUSIC quedó configurado y actualizado.")
+        print("✅ Santacho FC V7.4 TRYOUT FIRST quedó configurado y actualizado.")
         print("✅ Comandos: /disponibilidad /convocatoria /alineacion /resultado /jugador /sumarstats /setstats /plantilla /tabla /premio /ausencia /sugerencia /fichar /titular /baja /configurarredes /configurarmusica /testbienvenida /paneles /organizar /configurarbots")
 
     except Exception as exc:
