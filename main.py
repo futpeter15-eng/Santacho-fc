@@ -3397,4 +3397,4 @@ async def on_ready():
 try:
     bot.run(TOKEN, log_handler=None)
 except discord.LoginFailure:
-print("❌ Token inválido.")
+    print("❌ Token inválido.")
