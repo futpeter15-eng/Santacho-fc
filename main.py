@@ -1,5 +1,5 @@
 """
-SANTACHO FC V8.3 START HERE — RAILWAY 24/7
+SANTACHO FC V8.3.1 SOCIALS FIX — RAILWAY 24/7
 ===================================
 
 Esta versión:
@@ -2228,12 +2228,15 @@ def build_social_view(data):
         ("Twitch", "🟣", data.get("twitch")),
         ("YouTube", "▶️", data.get("youtube")),
         ("Facebook", "🔵", data.get("facebook")),
-        ("X", "𝕏", data.get("x")),
+        ("X", None, data.get("x")),
         ("Discord", "💬", data.get("discord")),
     ]
     for label, emoji, url in specs:
         if url:
-            view.add_item(discord.ui.Button(label=label, emoji=emoji, style=discord.ButtonStyle.link, url=url))
+            kwargs = {"label": label, "style": discord.ButtonStyle.link, "url": url}
+            if emoji:
+                kwargs["emoji"] = emoji
+            view.add_item(discord.ui.Button(**kwargs))
     return view
 
 
@@ -3001,6 +3004,16 @@ async def configurarmusica(
 
 @app_commands.guild_only()
 @app_commands.command(name="configurarredes", description="Configura las redes oficiales de Santacho FC.")
+@app_commands.rename(discord_link="discord")
+@app_commands.describe(
+    instagram="URL completa de Instagram",
+    tiktok="URL completa de TikTok",
+    twitch="URL completa de Twitch",
+    youtube="URL completa de YouTube",
+    facebook="URL completa de Facebook",
+    x="URL completa de X / Twitter",
+    discord_link="URL de invitación de Discord",
+)
 async def configurarredes(
     interaction: discord.Interaction,
     instagram: Optional[str] = None,
@@ -3009,49 +3022,79 @@ async def configurarredes(
     youtube: Optional[str] = None,
     facebook: Optional[str] = None,
     x: Optional[str] = None,
-    discord: Optional[str] = None,
+    discord_link: Optional[str] = None,
 ):
+    # IMPORTANTE: antes el parámetro se llamaba "discord" y tapaba el módulo discord.py,
+    # causando "La aplicación no ha respondido" antes de poder contestar.
     if not isinstance(interaction.user, discord.Member) or not interaction.user.guild_permissions.administrator:
         await interaction.response.send_message("⛔ Solo administrador.", ephemeral=True)
         return
 
-    updates = {
-        "instagram": instagram,
-        "tiktok": tiktok,
-        "twitch": twitch,
-        "youtube": youtube,
-        "facebook": facebook,
-        "x": x,
-        "discord": discord,
-    }
+    # Responder a Discord inmediatamente para evitar timeout de 3 segundos.
+    await interaction.response.defer(ephemeral=True, thinking=True)
 
-    current = await load_socials(interaction.guild)
-    bad = []
-    changed = False
-    for key, value in updates.items():
-        if value is None:
-            continue
-        parsed = valid_social_url(value)
-        if parsed is None:
-            bad.append(key)
-            continue
-        current[key] = parsed
-        changed = True
+    try:
+        updates = {
+            "instagram": instagram,
+            "tiktok": tiktok,
+            "twitch": twitch,
+            "youtube": youtube,
+            "facebook": facebook,
+            "x": x,
+            "discord": discord_link,
+        }
 
-    if bad:
-        await interaction.response.send_message(
-            "⛔ Estos enlaces no parecen válidos: " + ", ".join(bad) + ". Usa URLs completas que empiecen por https://",
+        current = await load_socials(interaction.guild)
+        bad = []
+        changed = False
+
+        for key, value in updates.items():
+            if value is None:
+                continue
+
+            parsed = valid_social_url(value)
+            if parsed is None:
+                bad.append(key)
+                continue
+
+            current[key] = parsed
+            changed = True
+
+        if bad:
+            await interaction.followup.send(
+                "⛔ Estos enlaces no parecen válidos: "
+                + ", ".join(bad)
+                + ". Usa URLs completas que empiecen por `https://`.",
+                ephemeral=True,
+            )
+            return
+
+        if not changed:
+            await interaction.followup.send(
+                "ℹ️ No enviaste ningún enlace para cambiar.\n\n"
+                "Ejemplo:\n"
+                "`/configurarredes instagram:https://www.instagram.com/santachofc/`",
+                ephemeral=True,
+            )
+            return
+
+        await save_socials(interaction.guild, current)
+        await refresh_social_panel(interaction.guild)
+
+        configured = [k.capitalize() for k in SOCIAL_KEYS if current.get(k)]
+        await interaction.followup.send(
+            "✅ **Redes sociales actualizadas correctamente.**\n\n"
+            + ("Configuradas: " + ", ".join(configured) if configured else "No hay redes activas."),
             ephemeral=True,
         )
-        return
 
-    if not changed:
-        await interaction.response.send_message("No enviaste ningún enlace para cambiar.", ephemeral=True)
-        return
-
-    await save_socials(interaction.guild, current)
-    await refresh_social_panel(interaction.guild)
-    await interaction.response.send_message("✅ Redes sociales actualizadas.", ephemeral=True)
+    except Exception as exc:
+        print(f"❌ Error en /configurarredes: {type(exc).__name__}: {exc}")
+        await interaction.followup.send(
+            "❌ Ocurrió un error al actualizar las redes.\n"
+            "Revisa Railway → Deploy Logs para ver el detalle.",
+            ephemeral=True,
+        )
 
 
 @app_commands.guild_only()
