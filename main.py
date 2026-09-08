@@ -1,5 +1,5 @@
 """
-SANTACHO FC V8.2 PRIVATE TRYOUT — RAILWAY 24/7
+SANTACHO FC V8.3 START HERE — RAILWAY 24/7
 ===================================
 
 Esta versión:
@@ -125,7 +125,7 @@ CH_ABSENCE = "⚠️・𝒂𝒖𝒔𝒆𝒏𝒄𝒊𝒂𝒔"
 CH_OBJECTIVES = "🎯・𝒐𝒃𝒋𝒆𝒕𝒊𝒗𝒐𝒔"
 CH_ANALYSIS = "🎬・𝒂𝒏𝒂́𝒍𝒊𝒔𝒊𝒔-𝒅𝒆-𝒑𝒂𝒓𝒕𝒊𝒅𝒐𝒔"
 
-CH_TRY = "📝・𝒒𝒖𝒊𝒆𝒓𝒐-𝒑𝒓𝒐𝒃𝒂𝒓"
+CH_TRY = "🧪・𝒉𝒂𝒄𝒆𝒓-𝒑𝒓𝒖𝒆𝒃𝒂𝒔"
 CH_RECRUIT = "🔎・𝒃𝒖𝒔𝒄𝒂𝒎𝒐𝒔-𝒋𝒖𝒈𝒂𝒅𝒐𝒓𝒆𝒔"
 CH_ACCEPTED = "✅・𝒑𝒓𝒖𝒆𝒃𝒂𝒔-𝒂𝒄𝒆𝒑𝒕𝒂𝒅𝒂𝒔"
 
@@ -166,8 +166,9 @@ VOICE_MUSIC = "🎧・𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐑𝐀𝐃𝐈𝐎"
 
 CATEGORY_BLUEPRINT = [
     (CAT_INFO, [
-        ("text", CH_WELCOME), ("text", CH_RULES), ("text", CH_ANNOUNCE),
-        ("text", CH_TROPHIES), ("text", CH_JOIN), ("text", CH_SOCIALS),
+        ("text", CH_RULES), ("text", CH_TRY), ("text", CH_WELCOME),
+        ("text", CH_ANNOUNCE), ("text", CH_TROPHIES),
+        ("text", CH_JOIN), ("text", CH_SOCIALS),
     ]),
     (CAT_CLUB, [
         ("text", CH_GENERAL), ("text", CH_MEDIA), ("text", CH_MEMES),
@@ -184,7 +185,7 @@ CATEGORY_BLUEPRINT = [
         ("text", CH_ABSENCE), ("text", CH_OBJECTIVES), ("text", CH_ANALYSIS),
     ]),
     (CAT_SCOUT, [
-        ("text", CH_TRY), ("text", CH_RECRUIT), ("text", CH_ACCEPTED),
+        ("text", CH_RECRUIT), ("text", CH_ACCEPTED),
     ]),
     (CAT_TRYOUT, []),
     (CAT_TV, [
@@ -247,6 +248,9 @@ CATEGORY_RENAMES = {
 }
 
 CHANNEL_RENAMES = {
+    "📝・𝒒𝒖𝒊𝒆𝒓𝒐-𝒑𝒓𝒐𝒃𝒂𝒓": CH_TRY,
+    "📝・quiero-probar": CH_TRY,
+    "🧪・quiero-probar": CH_TRY,
     "🔴・𝒔𝒕𝒓𝒆𝒂𝒎𝒔": CH_STREAMS,
     "👋・bienvenida": CH_WELCOME,
     "📜・reglas": CH_RULES,
@@ -544,8 +548,22 @@ async def ensure_channel(guild, category, kind, name):
 
     return await guild.create_voice_channel(**kwargs)
 
+async def place_entry_tryout_channel(guild):
+    """Mueve HACER PRUEBAS a EMPIEZA AQUÍ sin duplicar el canal."""
+    channel = text_by_name(guild, CH_TRY)
+    category = category_by_name(guild, CAT_INFO)
+    if not category:
+        category = await ensure_category(guild, CAT_INFO)
+    if channel and channel.category_id != category.id:
+        try:
+            await channel.edit(category=category, position=1, reason="Santacho FC V8.3 ruta de pruebas")
+        except discord.HTTPException:
+            pass
+
+
 async def ensure_structure(guild):
     print("\n[3/6] Verificando categorías y canales...")
+    await place_entry_tryout_channel(guild)
     for category_name, channels in CATEGORY_BLUEPRINT:
         cat = await ensure_category(guild, category_name)
         for kind, channel_name in channels:
@@ -850,66 +868,58 @@ def data_channel_overwrites(guild):
 
 
 async def enforce_permissions(guild):
-    # Nuevos miembros: solo pueden ver bienvenida + reglas.
-    for name in [CH_WELCOME, CH_RULES]:
-        ch = text_by_name(guild, name)
-        if ch:
-            try:
-                await ch.edit(
-                    overwrites=onboarding_readonly_overwrites(guild),
-                    reason="Santacho FC V8.2 onboarding privado",
-                )
-            except discord.HTTPException:
-                pass
+    """Nuevos: solo REGLAS + HACER PRUEBAS dentro de EMPIEZA AQUÍ."""
 
-    # El canal público de pruebas queda oculto para nuevos.
-    try_ch = text_by_name(guild, CH_TRY)
-    if try_ch:
+    # EMPIEZA AQUÍ: solo dos canales públicos para usuarios sin rol.
+    info_cat = category_by_name(guild, CAT_INFO)
+    if info_cat:
         try:
-            await try_ch.edit(
-                overwrites=accepted_readonly_overwrites(guild),
-                reason="Santacho FC V8.2 pruebas por DM",
-            )
+            await info_cat.edit(overwrites=onboarding_readonly_overwrites(guild), reason="Santacho FC V8.3 onboarding mínimo")
         except discord.HTTPException:
             pass
 
-    # Información restante: solo miembros aceptados.
-    for name in [CH_ANNOUNCE, CH_TROPHIES, CH_JOIN, CH_SOCIALS]:
+    for name in [CH_RULES, CH_TRY]:
         ch = text_by_name(guild, name)
         if ch:
             try:
-                await ch.edit(
-                    overwrites=accepted_readonly_overwrites(guild),
-                    reason="Santacho FC V8.2 acceso restringido",
-                )
+                await ch.edit(overwrites=onboarding_readonly_overwrites(guild), reason="Santacho FC V8.3 visible a nuevos")
             except discord.HTTPException:
                 pass
 
-    # Clubhouse: solo aceptados.
+    # Todo lo demás dentro de EMPIEZA AQUÍ queda oculto hasta aceptación.
+    for name in [CH_WELCOME, CH_ANNOUNCE, CH_TROPHIES, CH_JOIN, CH_SOCIALS]:
+        ch = text_by_name(guild, name)
+        if ch:
+            try:
+                await ch.edit(overwrites=accepted_readonly_overwrites(guild), reason="Santacho FC V8.3 oculto hasta aceptación")
+            except discord.HTTPException:
+                pass
+
+    # Categorías completas ocultas a nuevos.
+    for cat_name in [CAT_CLUB, CAT_COMP, CAT_ROSTER, CAT_SCOUT, CAT_TV, CAT_VOICE, CAT_MUSIC, CAT_BOTS]:
+        cat = category_by_name(guild, cat_name)
+        if cat:
+            try:
+                await cat.edit(overwrites=accepted_category_overwrites(guild), reason="Santacho FC V8.3 categorías aceptados")
+            except discord.HTTPException:
+                pass
+
+    # Clubhouse.
     for name in [CH_GENERAL, CH_MEDIA, CH_MEMES, CH_FOOTBALL, CH_FC, CH_POSITIONS, CH_SUGGEST]:
         ch = text_by_name(guild, name)
         if ch:
             try:
-                await ch.edit(
-                    overwrites=accepted_chat_overwrites(guild),
-                    reason="Santacho FC V8.2 acceso restringido",
-                )
+                await ch.edit(overwrites=accepted_chat_overwrites(guild), reason="Santacho FC V8.3 acceso aceptados")
             except discord.HTTPException:
                 pass
 
-    # Matchday + primer equipo.
-    for name in [
-        CH_CALENDAR, CH_CALLED, CH_LINEUPS, CH_RESULTS, CH_STATS, CH_TABLE,
-        CH_ROSTER, CH_PLAYER_STATS, CH_MVP, CH_ACHIEVEMENTS,
-        CH_RECRUIT, CH_ACCEPTED,
-    ]:
+    # Matchday, primer equipo, scouting informativo.
+    for name in [CH_CALENDAR, CH_CALLED, CH_LINEUPS, CH_RESULTS, CH_STATS, CH_HIGHLIGHTS, CH_TABLE,
+                 CH_ROSTER, CH_PLAYER_STATS, CH_MVP, CH_ACHIEVEMENTS, CH_RECRUIT, CH_ACCEPTED]:
         ch = text_by_name(guild, name)
         if ch:
             try:
-                await ch.edit(
-                    overwrites=accepted_readonly_overwrites(guild),
-                    reason="Santacho FC V8.2 acceso restringido",
-                )
+                await ch.edit(overwrites=accepted_readonly_overwrites(guild), reason="Santacho FC V8.3 acceso aceptados")
             except discord.HTTPException:
                 pass
 
@@ -919,40 +929,30 @@ async def enforce_permissions(guild):
         if ch:
             try:
                 ow = accepted_chat_overwrites(guild) if name in {CH_CLIPS, CH_TIKTOK, CH_DESIGNS} else accepted_readonly_overwrites(guild)
-                await ch.edit(overwrites=ow, reason="Santacho FC V8.2 acceso restringido")
+                await ch.edit(overwrites=ow, reason="Santacho FC V8.3 acceso aceptados")
             except discord.HTTPException:
                 pass
 
-    # Música / bots.
+    # Música y bots.
     music_ch = text_by_name(guild, CH_MUSIC)
     if music_ch:
         try:
-            await music_ch.edit(
-                overwrites=accepted_chat_overwrites(guild),
-                reason="Santacho FC V8.2 acceso restringido",
-            )
+            await music_ch.edit(overwrites=accepted_chat_overwrites(guild), reason="Santacho FC V8.3 acceso aceptados")
         except discord.HTTPException:
             pass
 
-    for name in [CH_BOT_COMMANDS]:
-        ch = text_by_name(guild, name)
-        if ch:
-            try:
-                await ch.edit(
-                    overwrites=accepted_chat_overwrites(guild),
-                    reason="Santacho FC V8.2 acceso restringido",
-                )
-            except discord.HTTPException:
-                pass
+    bot_cmd = text_by_name(guild, CH_BOT_COMMANDS)
+    if bot_cmd:
+        try:
+            await bot_cmd.edit(overwrites=accepted_chat_overwrites(guild), reason="Santacho FC V8.3 acceso aceptados")
+        except discord.HTTPException:
+            pass
 
     for name in [CH_BOT_EVENTS, CH_BOT_STATS]:
         ch = text_by_name(guild, name)
         if ch:
             try:
-                await ch.edit(
-                    overwrites=accepted_readonly_overwrites(guild),
-                    reason="Santacho FC V8.2 acceso restringido",
-                )
+                await ch.edit(overwrites=accepted_readonly_overwrites(guild), reason="Santacho FC V8.3 acceso aceptados")
             except discord.HTTPException:
                 pass
 
@@ -960,47 +960,35 @@ async def enforce_permissions(guild):
     locker = category_by_name(guild, CAT_LOCKER)
     if locker:
         try:
-            await locker.edit(
-                overwrites=locker_overwrites(guild),
-                reason="Santacho FC V8.2 vestuario",
-            )
+            await locker.edit(overwrites=locker_overwrites(guild), reason="Santacho FC V8.3 vestuario")
         except discord.HTTPException:
             pass
         for ch in locker.channels:
             try:
-                await ch.edit(sync_permissions=True, reason="Santacho FC V8.2 vestuario")
+                await ch.edit(sync_permissions=True, reason="Santacho FC V8.3 vestuario")
             except discord.HTTPException:
                 pass
 
-    # Categoría de tickets: staff por defecto; cada ticket da permiso explícito al jugador.
+    # Tickets privados: staff por defecto + permiso individual del solicitante.
     tryout_cat = category_by_name(guild, CAT_TRYOUT)
     if tryout_cat:
         try:
-            await tryout_cat.edit(
-                overwrites=staff_only_overwrites(guild),
-                reason="Santacho FC V8.2 tickets privados",
-            )
+            await tryout_cat.edit(overwrites=staff_only_overwrites(guild), reason="Santacho FC V8.3 tickets")
         except discord.HTTPException:
             pass
 
-    # Staff privado.
+    # Staff.
     staff_cat = category_by_name(guild, CAT_STAFF)
     if staff_cat:
         try:
-            await staff_cat.edit(
-                overwrites=leadership_overwrites(guild),
-                reason="Santacho FC V8.2 staff",
-            )
+            await staff_cat.edit(overwrites=leadership_overwrites(guild), reason="Santacho FC V8.3 staff")
         except discord.HTTPException:
             pass
 
     data_ch = text_by_name(guild, CH_BOT_DATA)
     if data_ch:
         try:
-            await data_ch.edit(
-                overwrites=data_channel_overwrites(guild),
-                reason="Santacho FC V8.2 datos",
-            )
+            await data_ch.edit(overwrites=data_channel_overwrites(guild), reason="Santacho FC V8.3 datos")
         except discord.HTTPException:
             pass
 
@@ -1648,17 +1636,30 @@ class TryoutPanelView(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(
-        label="Prueba privada por DM",
-        emoji="🔒",
-        style=discord.ButtonStyle.secondary,
-        custom_id="santacho:v3:tryout"
+        label="HACER PRUEBA",
+        emoji="🧪",
+        style=discord.ButtonStyle.success,
+        custom_id="santacho:public:send_private_tryout"
     )
     async def open_tryout(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(
-            "🔒 Las pruebas nuevas solo se inician desde el **DM privado** que el bot envía al entrar.\n\n"
-            "Si no lo recibiste, activa los DMs del servidor y pídele al staff que use `/reenviarprueba`.",
-            ephemeral=True,
-        )
+        if not interaction.guild or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("Este botón debe usarse dentro de Santacho FC.", ephemeral=True)
+            return
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        ok = await send_private_tryout_dm(interaction.user)
+        if ok:
+            await interaction.followup.send(
+                "✅ **Te envié la prueba por mensaje privado.**\n\n"
+                "Abre tu chat con **Santacho FC** y pulsa **🧪 HACER PRUEBA AHORA**.\n"
+                "El formulario queda vinculado únicamente a tu cuenta de Discord.",
+                ephemeral=True,
+            )
+        else:
+            await interaction.followup.send(
+                "❌ No pude enviarte el mensaje privado.\n\n"
+                "Activa **Mensajes directos de miembros del servidor** para Santacho FC y vuelve a intentarlo.",
+                ephemeral=True,
+            )
 
 
 class WelcomeView(discord.ui.View):
@@ -2141,20 +2142,26 @@ async def ensure_panels(guild):
     try_ch = text_by_name(guild, CH_TRY)
     if try_ch:
         embed = discord.Embed(
-            title="🧪 𝐏𝐑𝐔𝐄𝐁𝐀𝐒 — 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
+            title="🧪 𝐇𝐀𝐂𝐄𝐑 𝐏𝐑𝐔𝐄𝐁𝐀𝐒 — 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
             description=(
-                "¿Quieres vestir el escudo?\n\n"
-                "Pulsa **Quiero probar** y completa el formulario.\n"
-                "Se abrirá un canal privado con nuestro staff."
+                "¿No viste el mensaje privado que te enviamos al entrar?\n\n"
+                "Pulsa **🧪 HACER PRUEBA** y el bot te enviará nuevamente tu acceso seguro **por DM**.\n\n"
+                "🔒 **El formulario nunca se llena en este canal.** "
+                "Se abre únicamente desde tu chat privado con Santacho FC y queda vinculado a tu Discord ID."
             ),
-            color=GOLD
+            color=GOLD,
         )
         embed.add_field(
             name="𝐋𝐨 𝐪𝐮𝐞 𝐛𝐮𝐬𝐜𝐚𝐦𝐨𝐬",
             value="🎙️ Comunicación\n⚽ Juego colectivo\n🧠 Disciplina\n🔥 Mentalidad competitiva",
-            inline=False
+            inline=False,
         )
-        await ensure_panel(try_ch, "SANTACHO_V3_TRYOUT", embed, discord.ui.View(timeout=None))
+        embed.add_field(
+            name="⚠️ Si no recibes el DM",
+            value="Activa **Mensajes directos de miembros del servidor** para Santacho FC y vuelve a pulsar el botón.",
+            inline=False,
+        )
+        await ensure_panel(try_ch, "SANTACHO_V83_TRYOUT_ROUTE", embed, TryoutPanelView())
 
     pos_ch = text_by_name(guild, CH_POSITIONS)
     if pos_ch:
@@ -2503,7 +2510,9 @@ async def send_private_tryout_dm(member: discord.Member):
             "Pulsa **🧪 HACER PRUEBA AHORA** y completa tu información. "
             "El bot verificará tu Discord ID y creará un ticket privado dentro del servidor.\n\n"
             "Hasta que un admin/directivo te pase a **PLANTILLA**, "
-            "el resto del servidor permanecerá bloqueado."
+            "el resto del servidor permanecerá bloqueado.\n\n"
+            "Si no encuentras este DM, dentro del servidor siempre tendrás "
+            "**EMPIEZA AQUÍ → 🧪 hacer-pruebas** para pedírmelo otra vez."
         ),
         color=GOLD,
     )
@@ -3388,5 +3397,4 @@ async def on_ready():
 try:
     bot.run(TOKEN, log_handler=None)
 except discord.LoginFailure:
-    print("❌ Token inválido.")
-
+print("❌ Token inválido.")
