@@ -35,18 +35,18 @@ SERVER_NAME = "🟡⚫ 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂"
 GOLD = 0xD4AF37
 
 # ----- Categorías bonitas -----
-CAT_INFO = "━━ 📌・𝐈𝐍𝐅𝐎𝐑𝐌𝐀𝐂𝐈Ó𝐍 ━━"
-CAT_CLUB = "━━ 🏟️・𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂 ━━"
-CAT_COMP = "━━ ⚽・𝐂𝐎𝐌𝐏𝐄𝐓𝐈𝐂𝐈Ó𝐍 ━━"
+CAT_INFO = "━━ 🦅・𝐄𝐌𝐏𝐈𝐄𝐙𝐀 𝐀𝐐𝐔Í ━━"
+CAT_CLUB = "━━ 🏟️・𝐂𝐋𝐔𝐁𝐇𝐎𝐔𝐒𝐄 ━━"
+CAT_COMP = "━━ ⚔️・𝐌𝐀𝐓𝐂𝐇𝐃𝐀𝐘 ━━"
 CAT_LOCKER = "━━ 🧠・𝐕𝐄𝐒𝐓𝐔𝐀𝐑𝐈𝐎 ━━"
-CAT_SCOUT = "━━ 🔍・𝐒𝐂𝐎𝐔𝐓𝐈𝐍𝐆 ━━"
-CAT_TRYOUT = "━━ 🧪・𝐏𝐑𝐔𝐄𝐁𝐀𝐒 𝐏𝐑𝐈𝐕𝐀𝐃𝐀𝐒 ━━"
-CAT_TV = "━━ 🎥・𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐓𝐕 ━━"
-CAT_VOICE = "━━ 🎙️・𝐂𝐀𝐍𝐀𝐋𝐄𝐒 𝐃𝐄 𝐕𝐎𝐙 ━━"
+CAT_SCOUT = "━━ 🧪・𝐑𝐄𝐂𝐋𝐔𝐓𝐀𝐌𝐈𝐄𝐍𝐓𝐎 ━━"
+CAT_TRYOUT = "━━ 🔒・𝐏𝐑𝐔𝐄𝐁𝐀𝐒 𝐏𝐑𝐈𝐕𝐀𝐃𝐀𝐒 ━━"
+CAT_TV = "━━ 🎥・𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐌𝐄𝐃𝐈𝐀 ━━"
+CAT_VOICE = "━━ 🎙️・𝐒𝐀𝐋𝐀𝐒 𝐃𝐄 𝐄𝐐𝐔𝐈𝐏𝐎 ━━"
 CAT_MUSIC = "━━ 🎵・𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐑𝐀𝐃𝐈𝐎 ━━"
-CAT_BOTS = "━━ 🤖・𝐁𝐎𝐓𝐒 ━━"
-CAT_ROSTER = "━━ 👥・𝐏𝐋𝐀𝐍𝐓𝐈𝐋𝐋𝐀 ━━"
-CAT_STAFF = "━━ 👑・𝐃𝐈𝐑𝐄𝐂𝐓𝐈𝐕𝐀 ━━"
+CAT_BOTS = "━━ 🤖・𝐀𝐔𝐓𝐎𝐌𝐀𝐓𝐈𝐙𝐀𝐂𝐈Ó𝐍 ━━"
+CAT_ROSTER = "━━ 👥・𝐏𝐑𝐈𝐌𝐄𝐑 𝐄𝐐𝐔𝐈𝐏𝐎 ━━"
+CAT_STAFF = "━━ 👑・𝐎𝐅𝐈𝐂𝐈𝐍𝐀 𝐃𝐄𝐋 𝐂𝐋𝐔𝐁 ━━"
 
 # ----- Roles bonitos -----
 ROLE_PRESIDENT = "👑・𝐏𝐑𝐄𝐒𝐈𝐃𝐄𝐍𝐓𝐄"
@@ -132,7 +132,7 @@ CH_ACCEPTED = "✅・𝒑𝒓𝒖𝒆𝒃𝒂𝒔-𝒂𝒄𝒆𝒑𝒕𝒂𝒅�
 CH_SCREEN = "📸・𝒔𝒄𝒓𝒆𝒆𝒏𝒔𝒉𝒐𝒕𝒔"
 CH_CLIPS = "🎬・𝒄𝒍𝒊𝒑𝒔"
 CH_TIKTOK = "📱・𝒕𝒊𝒌𝒕𝒐𝒌"
-CH_STREAMS = "🔴・𝒔𝒕𝒓𝒆𝒂𝒎𝒔"
+CH_STREAMS = "🔴・𝒆𝒏-𝒗𝒊𝒗𝒐"
 CH_DESIGNS = "🎨・𝒅𝒊𝒔𝒆𝒏̃𝒐𝒔"
 CH_POTW = "🔥・𝒋𝒖𝒈𝒂𝒅𝒂-𝒅𝒆-𝒍𝒂-𝒔𝒆𝒎𝒂𝒏𝒂"
 
@@ -225,6 +225,16 @@ CATEGORY_BLUEPRINT = [
 # =========================================================
 
 CATEGORY_RENAMES = {
+    "━━ 📌・𝐈𝐍𝐅𝐎𝐑𝐌𝐀𝐂𝐈Ó𝐍 ━━": CAT_INFO,
+    "━━ 🏟️・𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂 ━━": CAT_CLUB,
+    "━━ ⚽・𝐂𝐎𝐌𝐏𝐄𝐓𝐈𝐂𝐈Ó𝐍 ━━": CAT_COMP,
+    "━━ 🔍・𝐒𝐂𝐎𝐔𝐓𝐈𝐍𝐆 ━━": CAT_SCOUT,
+    "━━ 🧪・𝐏𝐑𝐔𝐄𝐁𝐀𝐒 𝐏𝐑𝐈𝐕𝐀𝐃𝐀𝐒 ━━": CAT_TRYOUT,
+    "━━ 🎥・𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐓𝐕 ━━": CAT_TV,
+    "━━ 🎙️・𝐂𝐀𝐍𝐀𝐋𝐄𝐒 𝐃𝐄 𝐕𝐎𝐙 ━━": CAT_VOICE,
+    "━━ 🤖・𝐁𝐎𝐓𝐒 ━━": CAT_BOTS,
+    "━━ 👥・𝐏𝐋𝐀𝐍𝐓𝐈𝐋𝐋𝐀 ━━": CAT_ROSTER,
+    "━━ 👑・𝐃𝐈𝐑𝐄𝐂𝐓𝐈𝐕𝐀 ━━": CAT_STAFF,
     "📌・INFORMACIÓN": CAT_INFO,
     "🏟️・SANTACHO FC": CAT_CLUB,
     "⚽・COMPETICIÓN": CAT_COMP,
@@ -237,6 +247,7 @@ CATEGORY_RENAMES = {
 }
 
 CHANNEL_RENAMES = {
+    "🔴・𝒔𝒕𝒓𝒆𝒂𝒎𝒔": CH_STREAMS,
     "👋・bienvenida": CH_WELCOME,
     "📜・reglas": CH_RULES,
     "📢・anuncios": CH_ANNOUNCE,
@@ -571,8 +582,8 @@ async def cleanup_default_channels(guild):
 async def organize_categories(guild):
     """Ordena las categorías principales de Santacho FC."""
     desired = [
-        CAT_INFO, CAT_CLUB, CAT_COMP, CAT_LOCKER, CAT_SCOUT,
-        CAT_TRYOUT, CAT_TV, CAT_VOICE, CAT_MUSIC, CAT_BOTS, CAT_ROSTER, CAT_STAFF,
+        CAT_INFO, CAT_CLUB, CAT_COMP, CAT_ROSTER, CAT_LOCKER, CAT_SCOUT,
+        CAT_TRYOUT, CAT_TV, CAT_VOICE, CAT_MUSIC, CAT_BOTS, CAT_STAFF,
     ]
     for position, name in enumerate(desired):
         category = category_by_name(guild, name)
@@ -672,6 +683,145 @@ def community_overwrites(guild):
     }
 
 
+ACCESS_ROLES = [
+    ROLE_PRESIDENT, ROLE_BOARD, ROLE_DT, ROLE_CAPTAIN,
+    ROLE_STARTER, ROLE_ROSTER, ROLE_CREATOR, ROLE_GUEST, ROLE_COMMUNITY
+]
+
+def onboarding_readonly_overwrites(guild):
+    """Visible para nuevos miembros: bienvenida / reglas / quiero probar."""
+    ow = {
+        guild.default_role: discord.PermissionOverwrite(
+            view_channel=True,
+            read_message_history=True,
+            send_messages=False,
+            add_reactions=False,
+            attach_files=False,
+            embed_links=True,
+        )
+    }
+    if guild.me:
+        ow[guild.me] = discord.PermissionOverwrite(
+            view_channel=True, read_message_history=True,
+            send_messages=True, manage_messages=True,
+            attach_files=True, embed_links=True
+        )
+    for name in LEADERSHIP_ROLES:
+        role = role_by_name(guild, name)
+        if role:
+            ow[role] = discord.PermissionOverwrite(
+                view_channel=True, read_message_history=True,
+                send_messages=True, manage_messages=True,
+                add_reactions=True, attach_files=True, embed_links=True
+            )
+    return ow
+
+
+def accepted_category_overwrites(guild):
+    """Canales ocultos para nuevos; visibles al recibir un rol de acceso."""
+    ow = {
+        guild.default_role: discord.PermissionOverwrite(
+            view_channel=False,
+            read_message_history=False,
+            send_messages=False,
+            connect=False,
+            speak=False,
+        )
+    }
+    if guild.me:
+        ow[guild.me] = discord.PermissionOverwrite(
+            view_channel=True, read_message_history=True,
+            send_messages=True, manage_messages=True,
+            attach_files=True, embed_links=True,
+            connect=True, speak=True, move_members=True
+        )
+    for name in ACCESS_ROLES:
+        role = role_by_name(guild, name)
+        if role:
+            ow[role] = discord.PermissionOverwrite(
+                view_channel=True, read_message_history=True,
+                send_messages=True, add_reactions=True,
+                attach_files=True, embed_links=True,
+                connect=True, speak=True
+            )
+    return ow
+
+
+def accepted_readonly_overwrites(guild):
+    """Visible al equipo aceptado; solo liderazgo puede publicar."""
+    ow = {
+        guild.default_role: discord.PermissionOverwrite(
+            view_channel=False,
+            read_message_history=False,
+            send_messages=False,
+            add_reactions=False,
+        )
+    }
+    if guild.me:
+        ow[guild.me] = discord.PermissionOverwrite(
+            view_channel=True, read_message_history=True,
+            send_messages=True, manage_messages=True,
+            add_reactions=True
+        )
+    for name in ACCESS_ROLES:
+        role = role_by_name(guild, name)
+        if role:
+            ow[role] = discord.PermissionOverwrite(
+                view_channel=True,
+                read_message_history=True,
+                send_messages=False,
+                add_reactions=True,
+            )
+    for name in LEADERSHIP_ROLES:
+        role = role_by_name(guild, name)
+        if role:
+            ow[role] = discord.PermissionOverwrite(
+                view_channel=True,
+                read_message_history=True,
+                send_messages=True,
+                manage_messages=True,
+                add_reactions=True,
+            )
+    return ow
+
+
+def accepted_chat_overwrites(guild):
+    """Visible y usable solo por miembros aceptados/roles de acceso."""
+    ow = {
+        guild.default_role: discord.PermissionOverwrite(
+            view_channel=False,
+            read_message_history=False,
+            send_messages=False,
+            add_reactions=False,
+            attach_files=False,
+            embed_links=False,
+            connect=False,
+            speak=False,
+        )
+    }
+    if guild.me:
+        ow[guild.me] = discord.PermissionOverwrite(
+            view_channel=True, read_message_history=True,
+            send_messages=True, manage_messages=True,
+            attach_files=True, embed_links=True,
+            connect=True, speak=True, move_members=True
+        )
+    for name in ACCESS_ROLES:
+        role = role_by_name(guild, name)
+        if role:
+            ow[role] = discord.PermissionOverwrite(
+                view_channel=True,
+                read_message_history=True,
+                send_messages=True,
+                add_reactions=True,
+                attach_files=True,
+                embed_links=True,
+                connect=True,
+                speak=True,
+            )
+    return ow
+
+
 def data_channel_overwrites(guild):
     ow = {
         guild.default_role: discord.PermissionOverwrite(
@@ -720,7 +870,7 @@ async def enforce_permissions(guild):
 
     # COMPETICIÓN y PLANTILLA: solo lectura para miembros.
     for name in [CH_CALENDAR, CH_CALLED, CH_LINEUPS, CH_RESULTS, CH_STATS, CH_TABLE,
-                 CH_ROSTER, CH_PLAYER_STATS, CH_MVP]:
+                 CH_ROSTER, CH_PLAYER_STATS, CH_MVP, CH_ACHIEVEMENTS]:
         ch = text_by_name(guild, name)
         if ch:
             try:
@@ -1081,13 +1231,191 @@ async def ensure_external_bot_panels(guild):
         await upsert_clean_embed(stats_ch, embed.title, embed)
 
 
+CHANNEL_DESIGN = {
+    CH_WELCOME: ("🦅 Punto de entrada oficial a Santacho FC. Bienvenida, prueba y orientación.", 0),
+    CH_RULES: ("📜 Normas oficiales del club. El escudo está primero.", 0),
+    CH_ANNOUNCE: ("📢 Comunicados oficiales de Santacho FC.", 0),
+    CH_TROPHIES: ("🏆 Historia, títulos y logros oficiales del club.", 0),
+    CH_JOIN: ("🎮 Guía rápida para entrar, probar y formar parte de Santacho FC.", 0),
+    CH_SOCIALS: ("🌐 Redes sociales oficiales y contenido del club.", 0),
+
+    CH_GENERAL: ("💬 La cancha: conversación principal de la comunidad Santacho.", 3),
+    CH_MEDIA: ("📸 Fotos, diseños, screenshots y contenido de la comunidad.", 2),
+    CH_MEMES: ("😂 Memes y contenido casual. Respeto siempre.", 2),
+    CH_FOOTBALL: ("⚽ Fútbol real, debate y noticias.", 3),
+    CH_FC: ("🎮 FC27, Clubes Pro, builds, tácticas y gameplay.", 3),
+    CH_POSITIONS: ("🎯 Selecciona tus posiciones oficiales dentro del club.", 0),
+    CH_SUGGEST: ("💡 Ideas para mejorar Santacho FC.", 10),
+
+    CH_CALENDAR: ("📅 Calendario oficial: partidos, entrenamientos y eventos.", 0),
+    CH_CALLED: ("✅ Convocatorias oficiales del primer equipo.", 0),
+    CH_LINEUPS: ("📋 Once inicial y formación para cada partido.", 0),
+    CH_RESULTS: ("🎯 Resultados oficiales de Santacho FC.", 0),
+    CH_STATS: ("📊 Estadísticas deportivas del club.", 0),
+    CH_HIGHLIGHTS: ("🎥 Mejores jugadas de partidos oficiales.", 2),
+    CH_TABLE: ("🏆 Tabla de posiciones y situación competitiva.", 0),
+
+    CH_ROSTER: ("👥 Plantilla oficial de Santacho FC.", 0),
+    CH_PLAYER_STATS: ("📊 Ranking y estadísticas individuales.", 0),
+    CH_MVP: ("⭐ Clasificación MVP de la temporada.", 0),
+    CH_ACHIEVEMENTS: ("🎖️ Premios y reconocimientos del club.", 0),
+
+    CH_LOCKER: ("🚪 Conversación privada de la plantilla.", 2),
+    CH_TACTICS: ("🧠 Pizarra táctica del DT y cuerpo técnico.", 0),
+    CH_AVAIL: ("📋 Disponibilidad semanal de la plantilla.", 0),
+    CH_ABSENCE: ("⚠️ Registro de ausencias.", 0),
+    CH_OBJECTIVES: ("🎯 Objetivos deportivos y de temporada.", 0),
+    CH_ANALYSIS: ("🎬 Análisis post-partido y puntos de mejora.", 3),
+
+    CH_TRY: ("🧪 Empieza aquí tu solicitud para probar con Santacho FC.", 0),
+    CH_RECRUIT: ("🔎 Posiciones y perfiles que está buscando el club.", 0),
+    CH_ACCEPTED: ("✅ Jugadores aceptados e incorporaciones recientes.", 0),
+
+    CH_SCREEN: ("📸 Galería de screenshots del club.", 2),
+    CH_CLIPS: ("🎬 Clips y mejores momentos de Santacho.", 2),
+    CH_TIKTOK: ("📱 Contenido pensado para TikTok.", 2),
+    CH_STREAMS: ("🔴 Avisos automáticos cuando Santacho FC está en directo.", 0),
+    CH_DESIGNS: ("🎨 Diseños, flyers, overlays y branding del club.", 2),
+    CH_POTW: ("🔥 Jugada de la semana.", 0),
+
+    CH_MUSIC: ("🎵 Comandos del bot musical. Mantén la música fuera de la cancha.", 2),
+    CH_BOT_COMMANDS: ("🤖 Comandos generales de bots.", 1),
+    CH_BOT_EVENTS: ("📅 SeshBot: eventos, horarios y RSVP.", 0),
+    CH_BOT_STATS: ("📊 Statbot: analítica del servidor.", 0),
+
+    CH_CONTROL_CENTER: ("🎛️ Centro de control interno de Santacho FC.", 0),
+    CH_BOARD: ("👑 Sala privada de directiva.", 0),
+    CH_STAFF: ("📝 Coordinación del staff.", 0),
+    CH_DECISIONS: ("📋 Registro interno de decisiones.", 0),
+    CH_REPORTS: ("🚨 Reportes y asuntos que requieren atención.", 0),
+    CH_SCOUT_STAFF: ("🔍 Evaluaciones de scouting y pruebas.", 0),
+    CH_ADMIN: ("⚙️ Administración técnica del servidor.", 0),
+}
+
+
+async def apply_elite_channel_design(guild):
+    """Aplica topics, slowmode y pequeños detalles visuales sin borrar contenido."""
+    for channel_name, (topic, slowmode) in CHANNEL_DESIGN.items():
+        channel = text_by_name(guild, channel_name)
+        if not channel:
+            continue
+        try:
+            await channel.edit(
+                topic=topic,
+                slowmode_delay=slowmode,
+                reason="Santacho FC V8 Clubhouse design",
+            )
+            await asyncio.sleep(0.04)
+        except discord.HTTPException:
+            pass
+
+    # El canal de bienvenida se convierte en el canal de sistema si Discord lo permite.
+    welcome = text_by_name(guild, CH_WELCOME)
+    if welcome:
+        try:
+            await guild.edit(
+                system_channel=welcome,
+                reason="Santacho FC V8 Clubhouse design",
+            )
+        except discord.HTTPException:
+            pass
+
+
+async def ensure_clubhouse_panels(guild):
+    rules = text_by_name(guild, CH_RULES)
+    if rules:
+        embed = discord.Embed(
+            title="📜 𝐂Ó𝐃𝐈𝐆𝐎 𝐃𝐄𝐋 𝐂𝐋𝐔𝐁",
+            description="Estas reglas mantienen a Santacho competitivo, organizado y agradable para todos.",
+            color=GOLD,
+        )
+        embed.add_field(
+            name="01 • Respeto",
+            value="Nada de ataques personales, discriminación, acoso o toxicidad excesiva.",
+            inline=False,
+        )
+        embed.add_field(
+            name="02 • Compromiso",
+            value="Si estás en plantilla, responde disponibilidad y avisa ausencias con tiempo.",
+            inline=False,
+        )
+        embed.add_field(
+            name="03 • Competición",
+            value="Las decisiones deportivas del DT y staff se respetan. Los desacuerdos se hablan en privado.",
+            inline=False,
+        )
+        embed.add_field(
+            name="04 • Comunicación",
+            value="En partido: información clara, corta y útil. Evita saturar el canal de voz.",
+            inline=False,
+        )
+        embed.add_field(
+            name="05 • Identidad",
+            value="Representa bien al club dentro y fuera del juego. **El escudo está primero.**",
+            inline=False,
+        )
+        await upsert_clean_embed(rules, embed.title, embed)
+
+    join_ch = text_by_name(guild, CH_JOIN)
+    if join_ch:
+        try_ch = text_by_name(guild, CH_TRY)
+        pos_ch = text_by_name(guild, CH_POSITIONS)
+        embed = discord.Embed(
+            title="🎮 𝐂Ó𝐌𝐎 𝐄𝐍𝐓𝐑𝐀𝐑 𝐀 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎",
+            description="Tu camino desde nuevo miembro hasta jugador del primer equipo.",
+            color=GOLD,
+        )
+        embed.add_field(
+            name="1️⃣ Haz tu prueba",
+            value=f"Ve a {try_ch.mention if try_ch else 'pruebas'} y pulsa **HACER PRUEBA AHORA**.",
+            inline=False,
+        )
+        embed.add_field(
+            name="2️⃣ Ticket privado",
+            value="Completa gamertag, plataforma, posiciones, horarios y experiencia.",
+            inline=False,
+        )
+        embed.add_field(
+            name="3️⃣ Evaluación",
+            value="El staff puede colocarte **A PRUEBA**, incorporarte a **PLANTILLA** o cerrar la solicitud.",
+            inline=False,
+        )
+        embed.add_field(
+            name="4️⃣ Posiciones",
+            value=f"Si avanzas, elige tus posiciones en {pos_ch.mention if pos_ch else 'elige-tu-posición'}.",
+            inline=False,
+        )
+        embed.add_field(
+            name="5️⃣ Compite",
+            value="Disponibilidad → convocatoria → alineación → partido → estadísticas.",
+            inline=False,
+        )
+        await upsert_clean_embed(join_ch, embed.title, embed)
+
+    live = text_by_name(guild, CH_STREAMS)
+    if live:
+        embed = discord.Embed(
+            title="🔴 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐄𝐍 𝐕𝐈𝐕𝐎",
+            description=(
+                "Aquí aparecerán los avisos cuando el club o sus creadores estén transmitiendo.\n\n"
+                "📱 TikTok LIVE\n"
+                "🟣 Twitch\n"
+                "▶️ YouTube\n\n"
+                "Mantén las notificaciones de streams en este canal para que el resto del servidor quede limpio."
+            ),
+            color=0xE53935,
+        )
+        await upsert_clean_embed(live, embed.title, embed)
+
+
 async def apply_v6_layout(guild):
-    print("\n[4/6] Limpiando y ordenando Santacho FC...")
+    print("\n[4/6] Aplicando diseño CLUBHOUSE a Santacho FC...")
     await cleanup_default_channels(guild)
     await organize_categories(guild)
     await group_external_bots(guild)
     await enforce_permissions(guild)
     await configure_external_bots(guild)
+    await apply_elite_channel_design(guild)
 
 
 # =========================================================
@@ -1439,6 +1767,7 @@ class TicketStaffView(discord.ui.View):
         member = await self.target(interaction)
         roster = await required_role(interaction.guild, ROLE_ROSTER)
         trial = role_by_name(interaction.guild, ROLE_TRIAL)
+        community = role_by_name(interaction.guild, ROLE_COMMUNITY)
 
         if not member:
             await interaction.response.send_message(
@@ -1459,6 +1788,8 @@ class TicketStaffView(discord.ui.View):
                 await member.remove_roles(trial, reason=f"Santacho FC: promoción por {interaction.user}")
             if roster not in member.roles:
                 await member.add_roles(roster, reason=f"Santacho FC: incorporación por {interaction.user}")
+            if community and community not in member.roles:
+                await member.add_roles(community, reason=f"Santacho FC: acceso habilitado por {interaction.user}")
 
             accepted = text_by_name(interaction.guild, CH_ACCEPTED)
             if accepted:
@@ -1563,8 +1894,8 @@ async def ensure_panels(guild):
         embed = discord.Embed(
             title="🟡⚫ 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 𝐀 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
             description=(
-                "### 🦅 **Clubes Pro • FC27**\n"
-                "**Competimos como equipo. Ganamos como club.**\n\n"
+                "### 🦅 **CLUBES PRO • FC27 • EST. 2024**\n"
+                "**Una plantilla. Un escudo. Un objetivo.**\n\n"
                 "Bienvenido a la casa de **Santacho FC**, una comunidad creada para "
                 "competir, crecer y representar el escudo dentro de Clubes Pro.\n\n"
                 "**𝐄𝐌𝐏𝐈𝐄𝐙𝐀 𝐀𝐐𝐔Í**\n"
@@ -1597,7 +1928,7 @@ async def ensure_panels(guild):
         embed.add_field(
             name="🎮 𝐐𝐔𝐈𝐄𝐑𝐄𝐒 𝐉𝐔𝐆𝐀𝐑?",
             value=(
-                "Usa el botón **Quiero probar** y completa tu solicitud. "
+                "Usa el botón **HACER PRUEBA AHORA** y completa tu solicitud. "
                 "El staff recibirá un ticket privado para revisar tu prueba."
             ),
             inline=False
@@ -1652,6 +1983,7 @@ async def ensure_panels(guild):
 
     await refresh_social_panel(guild)
     await refresh_control_center(guild)
+    await ensure_clubhouse_panels(guild)
 
 
 # =========================================================
@@ -1967,22 +2299,21 @@ async def send_member_welcome(member: discord.Member, send_dm: bool = True):
 
     rules_ch = text_by_name(guild, CH_RULES)
     try_ch = text_by_name(guild, CH_TRY)
-    general_ch = text_by_name(guild, CH_GENERAL)
-    socials_ch = text_by_name(guild, CH_SOCIALS)
 
     embed = discord.Embed(
         title="🧪 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 — 𝐄𝐌𝐏𝐈𝐄𝐙𝐀 𝐓𝐔 𝐏𝐑𝐔𝐄𝐁𝐀",
         description=(
-            f"Bienvenido {member.mention} a **Santacho FC**. 🦅\\n\\n"
-            "### ⚽ Tu primer paso es hacer la prueba\\n"
+            f"Bienvenido {member.mention} a **Santacho FC**. 🦅\n\n"
+            "### 🔒 Acceso inicial del servidor\n"
+            "Por ahora solo podrás ver **bienvenida, reglas y tu proceso de prueba**.\n"
+            "Cuando el staff te acepte, se desbloqueará el resto del club automáticamente.\n\n"
+            "### ⚽ Tu primer paso es hacer la prueba\n"
             "Pulsa **🧪 HACER PRUEBA AHORA** debajo de este mensaje y completa "
-            "el formulario con tu gamertag, posiciones y disponibilidad.\\n\\n"
+            "el formulario con tu gamertag, posiciones y disponibilidad.\n\n"
             "Cuando lo envíes, el bot abrirá **tu canal privado de prueba** "
-            "para que el staff pueda revisar tu solicitud.\\n\\n"
-            f"📜 {rules_ch.mention if rules_ch else 'Reglas del club'}\\n"
-            f"🧪 {try_ch.mention if try_ch else 'Canal de pruebas'}\\n"
-            f"⚽ {general_ch.mention if general_ch else 'La cancha'}\\n"
-            f"🌐 {socials_ch.mention if socials_ch else 'Redes sociales'}"
+            "para que el staff revise tu solicitud.\n\n"
+            f"📜 {rules_ch.mention if rules_ch else 'Reglas del club'}\n"
+            f"🧪 {try_ch.mention if try_ch else 'Canal de pruebas'}"
         ),
         color=GOLD,
     )
@@ -1995,10 +2326,10 @@ async def send_member_welcome(member: discord.Member, send_dm: bool = True):
     embed.add_field(
         name="🎯 𝐐𝐔É 𝐍𝐄𝐂𝐄𝐒𝐈𝐓𝐀𝐒",
         value=(
-            "🎮 Gamertag / ID\\n"
-            "🌎 Edad, país y plataforma\\n"
-            "⚽ Posición principal y secundaria\\n"
-            "⏰ Horarios disponibles\\n"
+            "🎮 Gamertag / ID\n"
+            "🌎 Edad, país y plataforma\n"
+            "⚽ Posición principal y secundaria\n"
+            "⏰ Horarios disponibles\n"
             "🏆 Experiencia y estilo de juego"
         ),
         inline=False,
@@ -2033,10 +2364,11 @@ async def send_member_welcome(member: discord.Member, send_dm: bool = True):
             dm_embed = discord.Embed(
                 title="🧪 Tu prueba en Santacho FC",
                 description=(
-                    f"¡Bienvenido a **{guild.name}**! 🦅\\n\\n"
-                    "Para comenzar, completa tu solicitud de prueba desde el servidor.\\n\\n"
+                    f"¡Bienvenido a **{guild.name}**! 🦅\n\n"
+                    "Ahora mismo solo tienes acceso a la zona de bienvenida y prueba.\n"
+                    "Cuando seas aceptado, se desbloqueará el resto del servidor.\n\n"
                     + (
-                        f"➡️ **Ir al canal de pruebas:** {try_ch.jump_url}\\n\\n"
+                        f"➡️ **Ir al canal de pruebas:** {try_ch.jump_url}\n\n"
                         if try_ch else
                         ""
                     )
@@ -2511,10 +2843,13 @@ async def fichar(interaction: discord.Interaction, jugador: discord.Member):
         return
     roster = role_by_name(interaction.guild, ROLE_ROSTER)
     trial = role_by_name(interaction.guild, ROLE_TRIAL)
+    community = role_by_name(interaction.guild, ROLE_COMMUNITY)
     if trial and trial in jugador.roles:
         await jugador.remove_roles(trial, reason="Santacho FC: fichaje")
     if roster and roster not in jugador.roles:
         await jugador.add_roles(roster, reason="Santacho FC: fichaje")
+    if community and community not in jugador.roles:
+        await jugador.add_roles(community, reason="Santacho FC: acceso habilitado")
     await refresh_roster_panel(interaction.guild)
     await interaction.response.send_message(f"✅ {jugador.mention} ya forma parte de la plantilla.")
 
@@ -2527,11 +2862,14 @@ async def titular(interaction: discord.Interaction, jugador: discord.Member, act
         return
     starter = role_by_name(interaction.guild, ROLE_STARTER)
     roster = role_by_name(interaction.guild, ROLE_ROSTER)
+    community = role_by_name(interaction.guild, ROLE_COMMUNITY)
     if activo:
         if roster and roster not in jugador.roles:
             await jugador.add_roles(roster, reason="Santacho FC: titular")
         if starter and starter not in jugador.roles:
             await jugador.add_roles(starter, reason="Santacho FC: titular")
+        if community and community not in jugador.roles:
+            await jugador.add_roles(community, reason="Santacho FC: acceso habilitado")
     else:
         if starter and starter in jugador.roles:
             await jugador.remove_roles(starter, reason="Santacho FC: suplencia")
@@ -2545,7 +2883,7 @@ async def baja(interaction: discord.Interaction, jugador: discord.Member, motivo
     if not isinstance(interaction.user, discord.Member) or not is_staff(interaction.user):
         await interaction.response.send_message("⛔ Solo staff.", ephemeral=True)
         return
-    roles = [role_by_name(interaction.guild, n) for n in (ROLE_STARTER, ROLE_ROSTER, ROLE_TRIAL)]
+    roles = [role_by_name(interaction.guild, n) for n in (ROLE_STARTER, ROLE_ROSTER, ROLE_TRIAL, ROLE_COMMUNITY)]
     roles = [r for r in roles if r and r in jugador.roles]
     if roles:
         await jugador.remove_roles(*roles, reason=motivo)
@@ -2570,6 +2908,84 @@ async def testbienvenida(interaction: discord.Interaction, jugador: Optional[dis
         await interaction.followup.send("✅ Bienvenida de prueba publicada.", ephemeral=True)
     else:
         await interaction.followup.send("❌ No pude publicar la bienvenida. Revisa permisos y el canal de bienvenida.", ephemeral=True)
+
+
+
+
+@app_commands.guild_only()
+@app_commands.command(
+    name="disenarsantacho",
+    description="Aplica el diseño completo CLUBHOUSE de Santacho FC."
+)
+async def disenarsantacho(interaction: discord.Interaction):
+    if not isinstance(interaction.user, discord.Member) or not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("⛔ Solo un administrador puede rediseñar el servidor.", ephemeral=True)
+        return
+
+    await interaction.response.defer(ephemeral=True, thinking=True)
+
+    await migrate_names(interaction.guild)
+    await ensure_roles(interaction.guild)
+    await ensure_structure(interaction.guild)
+    await apply_v6_layout(interaction.guild)
+    await configure_music_bot(interaction.guild)
+    await ensure_panels(interaction.guild)
+    await ensure_music_panel(interaction.guild)
+    await ensure_clubhouse_panels(interaction.guild)
+    await refresh_public_player_panels(interaction.guild)
+    await organize_categories(interaction.guild)
+
+    await interaction.followup.send(
+        "✅ **Santacho FC CLUBHOUSE aplicado.**\\n\\n"
+        "🦅 Inicio y onboarding\\n"
+        "🏟️ Clubhouse\\n"
+        "⚔️ Matchday\\n"
+        "👥 Primer Equipo\\n"
+        "🧠 Vestuario\\n"
+        "🧪 Reclutamiento\\n"
+        "🎥 Santacho Media\\n"
+        "🎙️ Salas de equipo\\n"
+        "🎵 Santacho Radio\\n"
+        "🤖 Automatización\\n"
+        "👑 Oficina del Club",
+        ephemeral=True,
+    )
+
+
+
+
+@app_commands.guild_only()
+@app_commands.command(
+    name="modoacceso",
+    description="Bloquea el servidor para nuevos y deja visible solo bienvenida + pruebas hasta aceptación."
+)
+async def modoacceso(interaction: discord.Interaction):
+    if not isinstance(interaction.user, discord.Member) or not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("⛔ Solo un administrador puede usar este comando.", ephemeral=True)
+        return
+
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    await migrate_names(interaction.guild)
+    await ensure_roles(interaction.guild)
+    await ensure_structure(interaction.guild)
+    await apply_v6_layout(interaction.guild)
+    await enforce_permissions(interaction.guild)
+    await ensure_panels(interaction.guild)
+    await ensure_music_panel(interaction.guild)
+    await ensure_clubhouse_panels(interaction.guild)
+    await refresh_public_player_panels(interaction.guild)
+    await organize_categories(interaction.guild)
+
+    await interaction.followup.send(
+        "✅ **Modo acceso restringido activado.**\n\n"
+        "Los nuevos miembros ahora solo verán:\n"
+        "• 👋 bienvenida\n"
+        "• 📜 reglas\n"
+        "• 📝 quiero-probar\n"
+        "• su ticket privado de prueba\n\n"
+        "Al pasarlos a **PLANTILLA**, el resto del servidor se desbloquea.",
+        ephemeral=True
+    )
 
 
 # =========================================================
@@ -2611,6 +3027,8 @@ bot.tree.add_command(plantilla)
 bot.tree.add_command(tabla)
 bot.tree.add_command(alineacion)
 bot.tree.add_command(configurarbots)
+bot.tree.add_command(modoacceso)
+bot.tree.add_command(disenarsantacho)
 bot.tree.add_command(configurarmusica)
 bot.tree.add_command(testbienvenida)
 bot.tree.add_command(configurarredes)
@@ -2659,8 +3077,8 @@ async def on_ready():
             pass
 
         print("\n[6/6] TERMINADO")
-        print("✅ Santacho FC V7.4 TRYOUT FIRST quedó configurado y actualizado.")
-        print("✅ Comandos: /disponibilidad /convocatoria /alineacion /resultado /jugador /sumarstats /setstats /plantilla /tabla /premio /ausencia /sugerencia /fichar /titular /baja /configurarredes /configurarmusica /testbienvenida /paneles /organizar /configurarbots")
+        print("✅ Santacho FC V8.1 LOCKED ONBOARDING quedó diseñado y actualizado.")
+        print("✅ Comandos: /modoacceso /disenarsantacho /disponibilidad /convocatoria /alineacion /resultado /jugador /sumarstats /setstats /plantilla /tabla /premio /ausencia /sugerencia /fichar /titular /baja /configurarredes /configurarmusica /testbienvenida /paneles /organizar /configurarbots")
 
     except Exception as exc:
         print(f"\n❌ ERROR: {type(exc).__name__}: {exc}")
