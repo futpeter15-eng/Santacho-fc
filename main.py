@@ -1,5 +1,5 @@
 """
-SANTACHO FC V6 — RAILWAY 24/7
+SANTACHO FC V8.2 PRIVATE TRYOUT — RAILWAY 24/7
 ===================================
 
 Esta versión:
@@ -850,60 +850,157 @@ def data_channel_overwrites(guild):
 
 
 async def enforce_permissions(guild):
-    # INFORMACIÓN: solo lectura.
-    for name in [CH_WELCOME, CH_RULES, CH_ANNOUNCE, CH_TROPHIES, CH_JOIN, CH_SOCIALS]:
+    # Nuevos miembros: solo pueden ver bienvenida + reglas.
+    for name in [CH_WELCOME, CH_RULES]:
         ch = text_by_name(guild, name)
         if ch:
             try:
-                await ch.edit(overwrites=readonly_public_overwrites(guild), reason="Santacho FC V5 permisos")
+                await ch.edit(
+                    overwrites=onboarding_readonly_overwrites(guild),
+                    reason="Santacho FC V8.2 onboarding privado",
+                )
             except discord.HTTPException:
                 pass
 
-    # SANTACHO FC: comunidad abierta.
+    # El canal público de pruebas queda oculto para nuevos.
+    try_ch = text_by_name(guild, CH_TRY)
+    if try_ch:
+        try:
+            await try_ch.edit(
+                overwrites=accepted_readonly_overwrites(guild),
+                reason="Santacho FC V8.2 pruebas por DM",
+            )
+        except discord.HTTPException:
+            pass
+
+    # Información restante: solo miembros aceptados.
+    for name in [CH_ANNOUNCE, CH_TROPHIES, CH_JOIN, CH_SOCIALS]:
+        ch = text_by_name(guild, name)
+        if ch:
+            try:
+                await ch.edit(
+                    overwrites=accepted_readonly_overwrites(guild),
+                    reason="Santacho FC V8.2 acceso restringido",
+                )
+            except discord.HTTPException:
+                pass
+
+    # Clubhouse: solo aceptados.
     for name in [CH_GENERAL, CH_MEDIA, CH_MEMES, CH_FOOTBALL, CH_FC, CH_POSITIONS, CH_SUGGEST]:
         ch = text_by_name(guild, name)
         if ch:
             try:
-                await ch.edit(overwrites=community_overwrites(guild), reason="Santacho FC V5 permisos")
+                await ch.edit(
+                    overwrites=accepted_chat_overwrites(guild),
+                    reason="Santacho FC V8.2 acceso restringido",
+                )
             except discord.HTTPException:
                 pass
 
-    # COMPETICIÓN y PLANTILLA: solo lectura para miembros.
-    for name in [CH_CALENDAR, CH_CALLED, CH_LINEUPS, CH_RESULTS, CH_STATS, CH_TABLE,
-                 CH_ROSTER, CH_PLAYER_STATS, CH_MVP, CH_ACHIEVEMENTS]:
+    # Matchday + primer equipo.
+    for name in [
+        CH_CALENDAR, CH_CALLED, CH_LINEUPS, CH_RESULTS, CH_STATS, CH_TABLE,
+        CH_ROSTER, CH_PLAYER_STATS, CH_MVP, CH_ACHIEVEMENTS,
+        CH_RECRUIT, CH_ACCEPTED,
+    ]:
         ch = text_by_name(guild, name)
         if ch:
             try:
-                await ch.edit(overwrites=readonly_public_overwrites(guild), reason="Santacho FC V5 permisos")
+                await ch.edit(
+                    overwrites=accepted_readonly_overwrites(guild),
+                    reason="Santacho FC V8.2 acceso restringido",
+                )
             except discord.HTTPException:
                 pass
 
-    # VESTUARIO: privado para plantilla oficial + liderazgo.
+    # Media.
+    for name in [CH_SCREEN, CH_CLIPS, CH_TIKTOK, CH_STREAMS, CH_DESIGNS, CH_POTW]:
+        ch = text_by_name(guild, name)
+        if ch:
+            try:
+                ow = accepted_chat_overwrites(guild) if name in {CH_CLIPS, CH_TIKTOK, CH_DESIGNS} else accepted_readonly_overwrites(guild)
+                await ch.edit(overwrites=ow, reason="Santacho FC V8.2 acceso restringido")
+            except discord.HTTPException:
+                pass
+
+    # Música / bots.
+    music_ch = text_by_name(guild, CH_MUSIC)
+    if music_ch:
+        try:
+            await music_ch.edit(
+                overwrites=accepted_chat_overwrites(guild),
+                reason="Santacho FC V8.2 acceso restringido",
+            )
+        except discord.HTTPException:
+            pass
+
+    for name in [CH_BOT_COMMANDS]:
+        ch = text_by_name(guild, name)
+        if ch:
+            try:
+                await ch.edit(
+                    overwrites=accepted_chat_overwrites(guild),
+                    reason="Santacho FC V8.2 acceso restringido",
+                )
+            except discord.HTTPException:
+                pass
+
+    for name in [CH_BOT_EVENTS, CH_BOT_STATS]:
+        ch = text_by_name(guild, name)
+        if ch:
+            try:
+                await ch.edit(
+                    overwrites=accepted_readonly_overwrites(guild),
+                    reason="Santacho FC V8.2 acceso restringido",
+                )
+            except discord.HTTPException:
+                pass
+
+    # Vestuario: plantilla oficial + liderazgo.
     locker = category_by_name(guild, CAT_LOCKER)
     if locker:
         try:
-            await locker.edit(overwrites=locker_overwrites(guild), reason="Santacho FC V5 permisos")
+            await locker.edit(
+                overwrites=locker_overwrites(guild),
+                reason="Santacho FC V8.2 vestuario",
+            )
         except discord.HTTPException:
             pass
         for ch in locker.channels:
             try:
-                await ch.edit(sync_permissions=True, reason="Santacho FC V5 permisos")
+                await ch.edit(sync_permissions=True, reason="Santacho FC V8.2 vestuario")
             except discord.HTTPException:
                 pass
 
-    # DIRECTIVA: privada.
-    staff_cat = category_by_name(guild, CAT_STAFF)
-    if staff_cat:
+    # Categoría de tickets: staff por defecto; cada ticket da permiso explícito al jugador.
+    tryout_cat = category_by_name(guild, CAT_TRYOUT)
+    if tryout_cat:
         try:
-            await staff_cat.edit(overwrites=leadership_overwrites(guild), reason="Santacho FC V5 permisos")
+            await tryout_cat.edit(
+                overwrites=staff_only_overwrites(guild),
+                reason="Santacho FC V8.2 tickets privados",
+            )
         except discord.HTTPException:
             pass
 
-    # Datos internos del bot: ocultos.
+    # Staff privado.
+    staff_cat = category_by_name(guild, CAT_STAFF)
+    if staff_cat:
+        try:
+            await staff_cat.edit(
+                overwrites=leadership_overwrites(guild),
+                reason="Santacho FC V8.2 staff",
+            )
+        except discord.HTTPException:
+            pass
+
     data_ch = text_by_name(guild, CH_BOT_DATA)
     if data_ch:
         try:
-            await data_ch.edit(overwrites=data_channel_overwrites(guild), reason="Santacho FC V5 datos")
+            await data_ch.edit(
+                overwrites=data_channel_overwrites(guild),
+                reason="Santacho FC V8.2 datos",
+            )
         except discord.HTTPException:
             pass
 
@@ -1433,22 +1530,49 @@ class TryoutModal(discord.ui.Modal, title="Prueba — Santacho FC"):
         max_length=700
     )
 
-    async def on_submit(self, interaction):
-        if not interaction.guild or not isinstance(interaction.user, discord.Member):
+    async def on_submit(self, interaction: discord.Interaction):
+        # Seguridad: solo aceptamos formularios iniciados desde el DM privado del bot.
+        if interaction.guild is not None:
+            await interaction.response.send_message(
+                "🔒 Por seguridad, las pruebas solo se completan desde el mensaje privado que Santacho FC te envía al entrar.",
+                ephemeral=True,
+            )
             return
 
-        guild = interaction.guild
-        member = interaction.user
-        marker = f"ticket_user_id:{member.id}"
+        guild = bot.get_guild(GUILD_ID)
+        if not guild:
+            await interaction.response.send_message(
+                "❌ No pude encontrar el servidor de Santacho FC. Avísale al staff."
+            )
+            return
 
+        try:
+            member = guild.get_member(interaction.user.id) or await guild.fetch_member(interaction.user.id)
+        except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+            member = None
+
+        if not member:
+            await interaction.response.send_message(
+                "❌ No apareces como miembro actual de Santacho FC. Vuelve a entrar al servidor e inténtalo otra vez."
+            )
+            return
+
+        # Ya aceptados no pueden crear otra solicitud.
+        if any(role.name in {ROLE_ROSTER, ROLE_STARTER, ROLE_COMMUNITY} for role in member.roles):
+            await interaction.response.send_message(
+                "✅ Ya formas parte de Santacho FC. No necesitas abrir otra prueba."
+            )
+            return
+
+        marker = f"ticket_user_id:{member.id}"
         for ch in guild.text_channels:
             if ch.topic and marker in ch.topic:
                 await interaction.response.send_message(
-                    f"Ya tienes una prueba abierta: {ch.mention}", ephemeral=True
+                    f"✅ Ya tienes una prueba abierta: {ch.jump_url}"
                 )
                 return
 
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await interaction.response.defer(thinking=True)
 
         cat = category_by_name(guild, CAT_TRYOUT)
         if not cat:
@@ -1457,28 +1581,47 @@ class TryoutModal(discord.ui.Modal, title="Prueba — Santacho FC"):
         ow = {
             guild.default_role: discord.PermissionOverwrite(view_channel=False),
             member: discord.PermissionOverwrite(
-                view_channel=True, read_message_history=True,
-                send_messages=True, attach_files=True, embed_links=True
-            )
+                view_channel=True,
+                read_message_history=True,
+                send_messages=True,
+                attach_files=True,
+                embed_links=True,
+            ),
         }
+
+        if guild.me:
+            ow[guild.me] = discord.PermissionOverwrite(
+                view_channel=True,
+                read_message_history=True,
+                send_messages=True,
+                manage_messages=True,
+            )
+
         for name in STAFF_ROLES:
             role = role_by_name(guild, name)
             if role:
                 ow[role] = discord.PermissionOverwrite(
-                    view_channel=True, read_message_history=True,
-                    send_messages=True, manage_messages=True
+                    view_channel=True,
+                    read_message_history=True,
+                    send_messages=True,
+                    manage_messages=True,
                 )
 
         channel = await guild.create_text_channel(
             f"🧪・prueba-{safe_channel_name(member.display_name)}-{str(member.id)[-4:]}",
             category=cat,
             topic=f"Santacho FC tryout | {marker}",
-            overwrites=ow
+            overwrites=ow,
+            reason="Santacho FC: solicitud privada verificada por DM",
         )
 
         embed = discord.Embed(
             title="🧪 𝐍𝐔𝐄𝐕𝐀 𝐒𝐎𝐋𝐈𝐂𝐈𝐓𝐔𝐃 𝐃𝐄 𝐏𝐑𝐔𝐄𝐁𝐀",
-            description=f"Jugador: {member.mention}",
+            description=(
+                f"**Jugador verificado:** {member.mention}\n"
+                f"**Discord ID:** `{member.id}`\n\n"
+                "🔒 Solicitud enviada desde el DM privado del propio jugador."
+            ),
             color=GOLD,
         )
         embed.add_field(name="🎮 Gamertag", value=str(self.gamertag), inline=False)
@@ -1488,13 +1631,15 @@ class TryoutModal(discord.ui.Modal, title="Prueba — Santacho FC"):
         embed.add_field(name="🏆 Experiencia", value=str(self.experiencia), inline=False)
 
         await channel.send(
-            content=f"{member.mention} — bienvenido a tu prueba privada.",
+            content=f"{member.mention} — tu prueba privada está lista para revisión.",
             embed=embed,
-            view=TicketStaffView()
+            view=TicketStaffView(),
         )
 
         await interaction.followup.send(
-            f"✅ Solicitud enviada: {channel.mention}", ephemeral=True
+            "✅ **Solicitud enviada correctamente.**\n\n"
+            f"Tu canal privado de prueba: {channel.jump_url}\n\n"
+            "El staff revisará tu información. Hasta ser aceptado, el resto del servidor seguirá bloqueado."
         )
 
 
@@ -1503,13 +1648,17 @@ class TryoutPanelView(discord.ui.View):
         super().__init__(timeout=None)
 
     @discord.ui.button(
-        label="Quiero probar",
-        emoji="🧪",
-        style=discord.ButtonStyle.primary,
+        label="Prueba privada por DM",
+        emoji="🔒",
+        style=discord.ButtonStyle.secondary,
         custom_id="santacho:v3:tryout"
     )
-    async def open_tryout(self, interaction, button):
-        await interaction.response.send_modal(TryoutModal())
+    async def open_tryout(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(
+            "🔒 Las pruebas nuevas solo se inician desde el **DM privado** que el bot envía al entrar.\n\n"
+            "Si no lo recibiste, activa los DMs del servidor y pídele al staff que use `/reenviarprueba`.",
+            ephemeral=True,
+        )
 
 
 class WelcomeView(discord.ui.View):
@@ -1539,14 +1688,6 @@ class WelcomeView(discord.ui.View):
                 ephemeral=True
             )
 
-    @discord.ui.button(
-        label="HACER PRUEBA AHORA",
-        emoji="🧪",
-        style=discord.ButtonStyle.success,
-        custom_id="santacho:welcome:tryout"
-    )
-    async def tryout(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_modal(TryoutModal())
 
     @discord.ui.button(
         label="Redes sociales",
@@ -1566,6 +1707,44 @@ class WelcomeView(discord.ui.View):
             )
         else:
             await interaction.response.send_message("No encontré el canal de redes sociales.", ephemeral=True)
+
+
+class DirectTryoutView(discord.ui.View):
+    """Botón persistente que solo debe usarse en el DM privado."""
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(
+        label="HACER PRUEBA AHORA",
+        emoji="🧪",
+        style=discord.ButtonStyle.success,
+        custom_id="santacho:dm:private_tryout"
+    )
+    async def start_private_tryout(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.guild is not None:
+            await interaction.response.send_message(
+                "🔒 Este botón solo funciona en tu chat privado con Santacho FC.",
+                ephemeral=True,
+            )
+            return
+
+        guild = bot.get_guild(GUILD_ID)
+        if not guild:
+            await interaction.response.send_message("❌ No pude encontrar el servidor. Avísale al staff.")
+            return
+
+        try:
+            member = guild.get_member(interaction.user.id) or await guild.fetch_member(interaction.user.id)
+        except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+            member = None
+
+        if not member:
+            await interaction.response.send_message(
+                "❌ Ya no apareces dentro del servidor Santacho FC."
+            )
+            return
+
+        await interaction.response.send_modal(TryoutModal())
 
 
 class AvailabilityView(discord.ui.View):
@@ -1784,12 +1963,20 @@ class TicketStaffView(discord.ui.View):
             return
 
         try:
+            was_accepted = (
+                roster in member.roles
+                or (community is not None and community in member.roles)
+            )
+
             if trial and trial in member.roles:
                 await member.remove_roles(trial, reason=f"Santacho FC: promoción por {interaction.user}")
             if roster not in member.roles:
                 await member.add_roles(roster, reason=f"Santacho FC: incorporación por {interaction.user}")
             if community and community not in member.roles:
                 await member.add_roles(community, reason=f"Santacho FC: acceso habilitado por {interaction.user}")
+
+            if not was_accepted:
+                await send_official_welcome(member, approved_by=interaction.user)
 
             accepted = text_by_name(interaction.guild, CH_ACCEPTED)
             if accepted:
@@ -1900,7 +2087,7 @@ async def ensure_panels(guild):
                 "competir, crecer y representar el escudo dentro de Clubes Pro.\n\n"
                 "**𝐄𝐌𝐏𝐈𝐄𝐙𝐀 𝐀𝐐𝐔Í**\n"
                 f"📜 {rules_ch.mention if rules_ch else 'Lee las reglas'} — conoce las normas del club\n"
-                f"🧪 {try_ch.mention if try_ch else 'Solicita una prueba'} — si quieres formar parte de la plantilla\n"
+                "🔒 Las pruebas de nuevos miembros se envían por **DM privado** al entrar.\n"
                 f"⚽ {general_ch.mention if general_ch else 'La cancha'} — habla con la comunidad\n"
                 f"📅 {events_ch.mention if events_ch else 'Eventos'} — partidos y entrenamientos\n"
             ),
@@ -1928,8 +2115,8 @@ async def ensure_panels(guild):
         embed.add_field(
             name="🎮 𝐐𝐔𝐈𝐄𝐑𝐄𝐒 𝐉𝐔𝐆𝐀𝐑?",
             value=(
-                "Usa el botón **HACER PRUEBA AHORA** y completa tu solicitud. "
-                "El staff recibirá un ticket privado para revisar tu prueba."
+                "Por seguridad, las pruebas iniciales se completan únicamente desde el **DM privado** "
+                "que el bot envía al nuevo miembro."
             ),
             inline=False
         )
@@ -1967,7 +2154,7 @@ async def ensure_panels(guild):
             value="🎙️ Comunicación\n⚽ Juego colectivo\n🧠 Disciplina\n🔥 Mentalidad competitiva",
             inline=False
         )
-        await ensure_panel(try_ch, "SANTACHO_V3_TRYOUT", embed, TryoutPanelView())
+        await ensure_panel(try_ch, "SANTACHO_V3_TRYOUT", embed, discord.ui.View(timeout=None))
 
     pos_ch = text_by_name(guild, CH_POSITIONS)
     if pos_ch:
@@ -2280,40 +2467,43 @@ async def refresh_public_player_panels(guild):
 
 
 # =========================================================
-# BIENVENIDA AUTOMÁTICA A NUEVOS MIEMBROS
+# ONBOARDING PRIVADO + BIENVENIDA OFICIAL
 # =========================================================
 
-async def send_member_welcome(member: discord.Member, send_dm: bool = True):
+async def notify_staff_dm_failure(member: discord.Member):
+    guild = member.guild
+    channel = text_by_name(guild, CH_STAFF) or text_by_name(guild, CH_BOARD)
+    if not channel:
+        return
+
+    try:
+        await channel.send(
+            f"⚠️ No pude enviar el DM de prueba a {member.mention}. "
+            "Pídele que habilite los mensajes directos del servidor y luego usa `/reenviarprueba`."
+        )
+    except discord.HTTPException:
+        pass
+
+
+async def send_private_tryout_dm(member: discord.Member):
     """
-    Publica una bienvenida personalizada y lleva al nuevo miembro
-    directamente al formulario de pruebas.
+    Al entrar NO publica nada en #bienvenida.
+    El proceso comienza exclusivamente en el DM del nuevo miembro.
     """
     if member.bot:
         return False
 
-    guild = member.guild
-    channel = text_by_name(guild, CH_WELCOME)
-    if not channel:
-        print("⚠️ No encontré el canal de bienvenida para el nuevo miembro.")
-        return False
-
-    rules_ch = text_by_name(guild, CH_RULES)
-    try_ch = text_by_name(guild, CH_TRY)
-
     embed = discord.Embed(
-        title="🧪 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 — 𝐄𝐌𝐏𝐈𝐄𝐙𝐀 𝐓𝐔 𝐏𝐑𝐔𝐄𝐁𝐀",
+        title="🧪 𝐏𝐑𝐔𝐄𝐁𝐀𝐒 𝐏𝐑𝐈𝐕𝐀𝐃𝐀𝐒 — 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
         description=(
-            f"Bienvenido {member.mention} a **Santacho FC**. 🦅\n\n"
-            "### 🔒 Acceso inicial del servidor\n"
-            "Por ahora solo podrás ver **bienvenida, reglas y tu proceso de prueba**.\n"
-            "Cuando el staff te acepte, se desbloqueará el resto del club automáticamente.\n\n"
-            "### ⚽ Tu primer paso es hacer la prueba\n"
-            "Pulsa **🧪 HACER PRUEBA AHORA** debajo de este mensaje y completa "
-            "el formulario con tu gamertag, posiciones y disponibilidad.\n\n"
-            "Cuando lo envíes, el bot abrirá **tu canal privado de prueba** "
-            "para que el staff revise tu solicitud.\n\n"
-            f"📜 {rules_ch.mention if rules_ch else 'Reglas del club'}\n"
-            f"🧪 {try_ch.mention if try_ch else 'Canal de pruebas'}"
+            f"Hola **{member.display_name}**. 🦅\n\n"
+            "Recibiste este mensaje porque acabas de entrar a **Santacho FC**.\n\n"
+            "### 🔒 Solicitud vinculada a tu cuenta\n"
+            "La prueba se inicia desde este chat privado para que nadie más pueda llenar tus datos por ti.\n\n"
+            "Pulsa **🧪 HACER PRUEBA AHORA** y completa tu información. "
+            "El bot verificará tu Discord ID y creará un ticket privado dentro del servidor.\n\n"
+            "Hasta que un admin/directivo te pase a **PLANTILLA**, "
+            "el resto del servidor permanecerá bloqueado."
         ),
         color=GOLD,
     )
@@ -2324,64 +2514,134 @@ async def send_member_welcome(member: discord.Member, send_dm: bool = True):
         pass
 
     embed.add_field(
-        name="🎯 𝐐𝐔É 𝐍𝐄𝐂𝐄𝐒𝐈𝐓𝐀𝐒",
+        name="🎮 Te pediremos",
         value=(
-            "🎮 Gamertag / ID\n"
-            "🌎 Edad, país y plataforma\n"
-            "⚽ Posición principal y secundaria\n"
-            "⏰ Horarios disponibles\n"
-            "🏆 Experiencia y estilo de juego"
+            "• Gamertag / ID\n"
+            "• Edad, país y plataforma\n"
+            "• Posiciones\n"
+            "• Disponibilidad\n"
+            "• Experiencia y estilo de juego"
         ),
         inline=False,
     )
+    embed.add_field(
+        name="⚠️ Seguridad",
+        value="La solicitud queda vinculada a **tu Discord ID**, no al nombre que escribas en el formulario.",
+        inline=False,
+    )
+    embed.set_footer(text="SANTACHO FC • El escudo está primero.")
+
+    try:
+        await member.send(embed=embed, view=DirectTryoutView())
+        return True
+    except (discord.Forbidden, discord.HTTPException):
+        await notify_staff_dm_failure(member)
+        return False
+
+
+async def send_official_welcome(member: discord.Member, approved_by=None):
+    """
+    Solo se publica cuando el jugador es aceptado oficialmente en PLANTILLA.
+    """
+    guild = member.guild
+    channel = text_by_name(guild, CH_WELCOME)
+    if not channel:
+        return False
+
+    general_ch = text_by_name(guild, CH_GENERAL)
+    positions_ch = text_by_name(guild, CH_POSITIONS)
+    roster_ch = text_by_name(guild, CH_ROSTER)
+
+    embed = discord.Embed(
+        title="⭐ 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 𝐎𝐅𝐈𝐂𝐈𝐀𝐋𝐌𝐄𝐍𝐓𝐄 𝐀 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
+        description=(
+            f"🦅 {member.mention} ha sido **aceptado oficialmente en la plantilla**.\n\n"
+            "Su acceso al Clubhouse acaba de ser desbloqueado."
+        ),
+        color=GOLD,
+    )
+
+    try:
+        embed.set_thumbnail(url=member.display_avatar.url)
+    except Exception:
+        pass
 
     embed.add_field(
-        name="🟡⚫ 𝐒𝐀𝐍𝐓𝐀𝐂𝐇𝐎 𝐅𝐂",
+        name="✅ Próximos pasos",
+        value=(
+            f"🎯 {positions_ch.mention if positions_ch else 'Elige tus posiciones'}\n"
+            f"👥 {roster_ch.mention if roster_ch else 'Revisa la plantilla'}\n"
+            f"💬 {general_ch.mention if general_ch else 'Preséntate en la cancha'}"
+        ),
+        inline=False,
+    )
+    embed.add_field(
+        name="🟡⚫ Nuestra identidad",
         value="**El escudo está primero.**",
         inline=False,
     )
 
-    embed.set_footer(text="SANTACHO FC • Clubes Pro • FC27 • Est. 2024")
-    embed.set_image(url="attachment://santacho_club.jpg")
+    if approved_by:
+        embed.set_footer(text=f"Aprobado por {approved_by.display_name} • SANTACHO FC")
+    else:
+        embed.set_footer(text="SANTACHO FC • Clubes Pro • FC27")
 
     try:
         await channel.send(
-            content=f"👋 {member.mention} — **tu prueba empieza aquí**",
+            content=f"🎉 **¡Nuevo jugador de Santacho FC!** {member.mention}",
             embed=embed,
             file=build_welcome_image_file(),
-            view=WelcomeView(),
             allowed_mentions=discord.AllowedMentions(users=True, roles=False, everyone=False),
         )
-    except discord.Forbidden:
-        print("❌ No tengo permiso para enviar la bienvenida en el canal.")
-        return False
-    except discord.HTTPException as exc:
-        print(f"❌ Error enviando bienvenida: {exc}")
-        return False
-
-    if send_dm:
+    except discord.HTTPException:
         try:
-            dm_embed = discord.Embed(
-                title="🧪 Tu prueba en Santacho FC",
+            await channel.send(
+                content=f"🎉 **¡Nuevo jugador de Santacho FC!** {member.mention}",
+                embed=embed,
+                allowed_mentions=discord.AllowedMentions(users=True, roles=False, everyone=False),
+            )
+        except discord.HTTPException:
+            return False
+
+    try:
+        await member.send(
+            embed=discord.Embed(
+                title="⭐ ¡Fuiste aceptado en Santacho FC!",
                 description=(
-                    f"¡Bienvenido a **{guild.name}**! 🦅\n\n"
-                    "Ahora mismo solo tienes acceso a la zona de bienvenida y prueba.\n"
-                    "Cuando seas aceptado, se desbloqueará el resto del servidor.\n\n"
-                    + (
-                        f"➡️ **Ir al canal de pruebas:** {try_ch.jump_url}\n\n"
-                        if try_ch else
-                        ""
-                    )
-                    + "Dentro del servidor pulsa **🧪 HACER PRUEBA AHORA**."
+                    "El staff aprobó tu ingreso a **PLANTILLA**.\n\n"
+                    "Ya tienes acceso al resto del servidor.\n"
+                    f"➡️ {channel.jump_url}"
                 ),
                 color=GOLD,
             )
-            dm_embed.set_footer(text="SANTACHO FC • El escudo está primero.")
-            await member.send(embed=dm_embed)
-        except (discord.Forbidden, discord.HTTPException):
-            pass
+        )
+    except discord.HTTPException:
+        pass
 
     return True
+
+
+async def cleanup_old_public_tryout_welcomes(guild):
+    """Borra mensajes personales antiguos de ingreso que contenían botones públicos de prueba."""
+    channel = text_by_name(guild, CH_WELCOME)
+    if not channel:
+        return
+
+    try:
+        async for msg in channel.history(limit=100):
+            if msg.author != guild.me:
+                continue
+            title = msg.embeds[0].title if msg.embeds else ""
+            if (
+                "tu prueba empieza aquí" in (msg.content or "").lower()
+                or title == "🧪 𝐁𝐈𝐄𝐍𝐕𝐄𝐍𝐈𝐃𝐎 — 𝐄𝐌𝐏𝐈𝐄𝐙𝐀 𝐓𝐔 𝐏𝐑𝐔𝐄𝐁𝐀"
+            ):
+                try:
+                    await msg.delete()
+                except discord.HTTPException:
+                    pass
+    except discord.HTTPException:
+        pass
 
 
 # =========================================================
@@ -2401,6 +2661,7 @@ class SantachoBot(commands.Bot):
         self.add_view(PositionPanelView())
         self.add_view(TicketStaffView())
         self.add_view(WelcomeView())
+        self.add_view(DirectTryoutView())
         self.add_view(AvailabilityView())
 
         obj = discord.Object(id=self.guild_id)
@@ -2844,12 +3105,15 @@ async def fichar(interaction: discord.Interaction, jugador: discord.Member):
     roster = role_by_name(interaction.guild, ROLE_ROSTER)
     trial = role_by_name(interaction.guild, ROLE_TRIAL)
     community = role_by_name(interaction.guild, ROLE_COMMUNITY)
+    was_accepted = bool((roster and roster in jugador.roles) or (community and community in jugador.roles))
     if trial and trial in jugador.roles:
         await jugador.remove_roles(trial, reason="Santacho FC: fichaje")
     if roster and roster not in jugador.roles:
         await jugador.add_roles(roster, reason="Santacho FC: fichaje")
     if community and community not in jugador.roles:
         await jugador.add_roles(community, reason="Santacho FC: acceso habilitado")
+    if not was_accepted:
+        await send_official_welcome(jugador, approved_by=interaction.user)
     await refresh_roster_panel(interaction.guild)
     await interaction.response.send_message(f"✅ {jugador.mention} ya forma parte de la plantilla.")
 
@@ -2863,6 +3127,7 @@ async def titular(interaction: discord.Interaction, jugador: discord.Member, act
     starter = role_by_name(interaction.guild, ROLE_STARTER)
     roster = role_by_name(interaction.guild, ROLE_ROSTER)
     community = role_by_name(interaction.guild, ROLE_COMMUNITY)
+    was_accepted = bool((roster and roster in jugador.roles) or (community and community in jugador.roles))
     if activo:
         if roster and roster not in jugador.roles:
             await jugador.add_roles(roster, reason="Santacho FC: titular")
@@ -2870,6 +3135,8 @@ async def titular(interaction: discord.Interaction, jugador: discord.Member, act
             await jugador.add_roles(starter, reason="Santacho FC: titular")
         if community and community not in jugador.roles:
             await jugador.add_roles(community, reason="Santacho FC: acceso habilitado")
+        if not was_accepted:
+            await send_official_welcome(jugador, approved_by=interaction.user)
     else:
         if starter and starter in jugador.roles:
             await jugador.remove_roles(starter, reason="Santacho FC: suplencia")
@@ -2894,8 +3161,8 @@ async def baja(interaction: discord.Interaction, jugador: discord.Member, motivo
 
 
 @app_commands.guild_only()
-@app_commands.command(name="testbienvenida", description="Prueba la bienvenida automática sin invitar a nadie.")
-@app_commands.describe(jugador="Miembro con el que quieres probar la bienvenida")
+@app_commands.command(name="testbienvenida", description="Prueba el DM privado de reclutamiento.")
+@app_commands.describe(jugador="Miembro al que quieres enviar el DM de prueba")
 async def testbienvenida(interaction: discord.Interaction, jugador: Optional[discord.Member] = None):
     if not isinstance(interaction.user, discord.Member) or not is_leadership(interaction.user):
         await interaction.response.send_message("⛔ Solo liderazgo.", ephemeral=True)
@@ -2903,12 +3170,41 @@ async def testbienvenida(interaction: discord.Interaction, jugador: Optional[dis
 
     target = jugador or interaction.user
     await interaction.response.defer(ephemeral=True)
-    ok = await send_member_welcome(target, send_dm=False)
-    if ok:
-        await interaction.followup.send("✅ Bienvenida de prueba publicada.", ephemeral=True)
-    else:
-        await interaction.followup.send("❌ No pude publicar la bienvenida. Revisa permisos y el canal de bienvenida.", ephemeral=True)
+    ok = await send_private_tryout_dm(target)
 
+    if ok:
+        await interaction.followup.send(
+            f"✅ DM privado enviado a {target.mention}.",
+            ephemeral=True,
+        )
+    else:
+        await interaction.followup.send(
+            f"❌ No pude enviar DM a {target.mention}. Debe habilitar los mensajes directos del servidor.",
+            ephemeral=True,
+        )
+
+
+@app_commands.guild_only()
+@app_commands.command(name="reenviarprueba", description="Reenvía a un miembro el formulario privado de pruebas.")
+@app_commands.describe(jugador="Jugador que debe recibir nuevamente el DM")
+async def reenviarprueba(interaction: discord.Interaction, jugador: discord.Member):
+    if not isinstance(interaction.user, discord.Member) or not is_leadership(interaction.user):
+        await interaction.response.send_message("⛔ Solo liderazgo.", ephemeral=True)
+        return
+
+    await interaction.response.defer(ephemeral=True)
+    ok = await send_private_tryout_dm(jugador)
+
+    if ok:
+        await interaction.followup.send(
+            f"✅ Formulario privado reenviado a {jugador.mention}.",
+            ephemeral=True,
+        )
+    else:
+        await interaction.followup.send(
+            f"❌ No pude escribirle a {jugador.mention}. Pídele que active los DMs del servidor.",
+            ephemeral=True,
+        )
 
 
 
@@ -3031,6 +3327,7 @@ bot.tree.add_command(modoacceso)
 bot.tree.add_command(disenarsantacho)
 bot.tree.add_command(configurarmusica)
 bot.tree.add_command(testbienvenida)
+bot.tree.add_command(reenviarprueba)
 bot.tree.add_command(configurarredes)
 bot.tree.add_command(ausencia)
 bot.tree.add_command(sugerencia)
@@ -3042,7 +3339,9 @@ bot.tree.add_command(baja)
 
 @bot.event
 async def on_member_join(member: discord.Member):
-    await send_member_welcome(member)
+    # No publica nada en #bienvenida al entrar.
+    # La prueba comienza únicamente por DM.
+    await send_private_tryout_dm(member)
 
 
 @bot.event
@@ -3068,6 +3367,7 @@ async def on_ready():
         await apply_v6_layout(guild)
         await configure_music_bot(guild)
         await ensure_panels(guild)
+        await cleanup_old_public_tryout_welcomes(guild)
         await ensure_music_panel(guild)
 
         try:
@@ -3078,7 +3378,7 @@ async def on_ready():
 
         print("\n[6/6] TERMINADO")
         print("✅ Santacho FC V8.1 LOCKED ONBOARDING quedó diseñado y actualizado.")
-        print("✅ Comandos: /modoacceso /disenarsantacho /disponibilidad /convocatoria /alineacion /resultado /jugador /sumarstats /setstats /plantilla /tabla /premio /ausencia /sugerencia /fichar /titular /baja /configurarredes /configurarmusica /testbienvenida /paneles /organizar /configurarbots")
+        print("✅ Comandos: /modoacceso /reenviarprueba /testbienvenida /disenarsantacho /disponibilidad /convocatoria /alineacion /resultado /jugador /sumarstats /setstats /plantilla /tabla /premio /ausencia /sugerencia /fichar /titular /baja /configurarredes /configurarmusica /paneles /organizar /configurarbots")
 
     except Exception as exc:
         print(f"\n❌ ERROR: {type(exc).__name__}: {exc}")
@@ -3089,3 +3389,4 @@ try:
     bot.run(TOKEN, log_handler=None)
 except discord.LoginFailure:
     print("❌ Token inválido.")
+
