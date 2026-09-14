@@ -1,5 +1,5 @@
 """
-SANTACHO FC V8.3.1 SOCIALS FIX — RAILWAY 24/7
+SANTACHO FC V8.4 — RELIABLE COMMUNITY
 ===================================
 
 Esta versión:
@@ -18,6 +18,8 @@ import io
 import re
 import asyncio
 import json
+import logging
+from contextlib import asynccontextmanager
 from typing import Optional
 
 import discord
@@ -1507,6 +1509,40 @@ async def apply_v6_layout(guild):
 # TRYOUT / POSITIONS
 # =========================================================
 
+
+_operation_locks = {}
+
+
+@asynccontextmanager
+async def operation_lock(key):
+    entry = _operation_locks.setdefault(key, [asyncio.Lock(), 0])
+    entry[1] += 1
+    try:
+        async with entry[0]:
+            yield
+    finally:
+        entry[1] -= 1
+        if not entry[1]:
+            _operation_locks.pop(key, None)
+
+
+async def report_interaction_error(interaction, error):
+    logging.getLogger("santacho").error("Interaction failed: %s", type(error).__name__)
+    text = "❌ No pude completar la acción. El staff puede revisar /diagnostico."
+    try:
+        if interaction.response.is_done():
+            await interaction.followup.send(text, ephemeral=True)
+        else:
+            await interaction.response.send_message(text, ephemeral=True)
+    except discord.HTTPException:
+        pass
+
+
+class ReliableView(discord.ui.View):
+    async def on_error(self, interaction, error, item):
+        await report_interaction_error(interaction, error)
+
+
 class TryoutModal(discord.ui.Modal, title="Prueba — Santacho FC"):
     gamertag = discord.ui.TextInput(label="Gamertag / ID", placeholder="Ej: ArmenKR20", max_length=50)
     perfil = discord.ui.TextInput(label="Edad / País / Plataforma", placeholder="Ej: 22 / Colombia / PS5", max_length=100)
@@ -1527,111 +1563,116 @@ class TryoutModal(discord.ui.Modal, title="Prueba — Santacho FC"):
             )
             return
 
-        guild = bot.get_guild(GUILD_ID)
-        if not guild:
-            await interaction.response.send_message(
-                "❌ No pude encontrar el servidor de Santacho FC. Avísale al staff."
-            )
-            return
-
-        try:
-            member = guild.get_member(interaction.user.id) or await guild.fetch_member(interaction.user.id)
-        except (discord.NotFound, discord.Forbidden, discord.HTTPException):
-            member = None
-
-        if not member:
-            await interaction.response.send_message(
-                "❌ No apareces como miembro actual de Santacho FC. Vuelve a entrar al servidor e inténtalo otra vez."
-            )
-            return
-
-        # Ya aceptados no pueden crear otra solicitud.
-        if any(role.name in {ROLE_ROSTER, ROLE_STARTER, ROLE_COMMUNITY} for role in member.roles):
-            await interaction.response.send_message(
-                "✅ Ya formas parte de Santacho FC. No necesitas abrir otra prueba."
-            )
-            return
-
-        marker = f"ticket_user_id:{member.id}"
-        for ch in guild.text_channels:
-            if ch.topic and marker in ch.topic:
-                await interaction.response.send_message(
-                    f"✅ Ya tienes una prueba abierta: {ch.jump_url}"
+        await interaction.response.defer(thinking=True)
+        async with operation_lock(("tryout", interaction.user.id)):
+            guild = bot.get_guild(GUILD_ID)
+            if not guild:
+                await interaction.followup.send(
+                    "❌ No pude encontrar el servidor de Santacho FC. Avísale al staff."
                 )
                 return
 
-        await interaction.response.defer(thinking=True)
+            try:
+                member = guild.get_member(interaction.user.id) or await guild.fetch_member(interaction.user.id)
+            except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+                member = None
 
-        cat = category_by_name(guild, CAT_TRYOUT)
-        if not cat:
-            cat = await ensure_category(guild, CAT_TRYOUT)
+            if not member:
+                await interaction.followup.send(
+                    "❌ No apareces como miembro actual de Santacho FC. Vuelve a entrar al servidor e inténtalo otra vez."
+                )
+                return
 
-        ow = {
-            guild.default_role: discord.PermissionOverwrite(view_channel=False),
-            member: discord.PermissionOverwrite(
-                view_channel=True,
-                read_message_history=True,
-                send_messages=True,
-                attach_files=True,
-                embed_links=True,
-            ),
-        }
+            # Ya aceptados no pueden crear otra solicitud.
+            if any(role.name in {ROLE_ROSTER, ROLE_STARTER, ROLE_COMMUNITY} for role in member.roles):
+                await interaction.followup.send(
+                    "✅ Ya formas parte de Santacho FC. No necesitas abrir otra prueba."
+                )
+                return
 
-        if guild.me:
-            ow[guild.me] = discord.PermissionOverwrite(
-                view_channel=True,
-                read_message_history=True,
-                send_messages=True,
-                manage_messages=True,
-            )
+            marker = f"ticket_user_id:{member.id}"
+            for ch in guild.text_channels:
+                if ticket_user_id(ch) == member.id and "ticket_status:closed" not in (ch.topic or ""):
+                    await interaction.followup.send(
+                        f"✅ Ya tienes una prueba abierta: {ch.jump_url}"
+                    )
+                    return
 
-        for name in STAFF_ROLES:
-            role = role_by_name(guild, name)
-            if role:
-                ow[role] = discord.PermissionOverwrite(
+            cat = category_by_name(guild, CAT_TRYOUT)
+            if not cat:
+                cat = await ensure_category(guild, CAT_TRYOUT)
+
+            ow = {
+                guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                member: discord.PermissionOverwrite(
+                    view_channel=True,
+                    read_message_history=True,
+                    send_messages=True,
+                    attach_files=True,
+                    embed_links=True,
+                ),
+            }
+
+            if guild.me:
+                ow[guild.me] = discord.PermissionOverwrite(
                     view_channel=True,
                     read_message_history=True,
                     send_messages=True,
                     manage_messages=True,
                 )
 
-        channel = await guild.create_text_channel(
-            f"🧪・prueba-{safe_channel_name(member.display_name)}-{str(member.id)[-4:]}",
-            category=cat,
-            topic=f"Santacho FC tryout | {marker}",
-            overwrites=ow,
-            reason="Santacho FC: solicitud privada verificada por DM",
-        )
+            for name in STAFF_ROLES:
+                role = role_by_name(guild, name)
+                if role:
+                    ow[role] = discord.PermissionOverwrite(
+                        view_channel=True,
+                        read_message_history=True,
+                        send_messages=True,
+                        manage_messages=True,
+                    )
 
-        embed = discord.Embed(
-            title="🧪 𝐍𝐔𝐄𝐕𝐀 𝐒𝐎𝐋𝐈𝐂𝐈𝐓𝐔𝐃 𝐃𝐄 𝐏𝐑𝐔𝐄𝐁𝐀",
-            description=(
-                f"**Jugador verificado:** {member.mention}\n"
-                f"**Discord ID:** `{member.id}`\n\n"
-                "🔒 Solicitud enviada desde el DM privado del propio jugador."
-            ),
-            color=GOLD,
-        )
-        embed.add_field(name="🎮 Gamertag", value=str(self.gamertag), inline=False)
-        embed.add_field(name="👤 Perfil", value=str(self.perfil), inline=False)
-        embed.add_field(name="⚽ Posiciones", value=str(self.posiciones), inline=False)
-        embed.add_field(name="⏰ Horarios", value=str(self.horarios), inline=False)
-        embed.add_field(name="🏆 Experiencia", value=str(self.experiencia), inline=False)
+            channel = await guild.create_text_channel(
+                f"🧪・prueba-{safe_channel_name(member.display_name)}-{str(member.id)[-4:]}",
+                category=cat,
+                topic=f"Santacho FC tryout | {marker}",
+                overwrites=ow,
+                reason="Santacho FC: solicitud privada verificada por DM",
+            )
 
-        await channel.send(
-            content=f"{member.mention} — tu prueba privada está lista para revisión.",
-            embed=embed,
-            view=TicketStaffView(),
-        )
+            embed = discord.Embed(
+                title="🧪 𝐍𝐔𝐄𝐕𝐀 𝐒𝐎𝐋𝐈𝐂𝐈𝐓𝐔𝐃 𝐃𝐄 𝐏𝐑𝐔𝐄𝐁𝐀",
+                description=(
+                    f"**Jugador verificado:** {member.mention}\n"
+                    f"**Discord ID:** `{member.id}`\n\n"
+                    "🔒 Solicitud enviada desde el DM privado del propio jugador."
+                ),
+                color=GOLD,
+            )
+            embed.add_field(name="🎮 Gamertag", value=str(self.gamertag), inline=False)
+            embed.add_field(name="👤 Perfil", value=str(self.perfil), inline=False)
+            embed.add_field(name="⚽ Posiciones", value=str(self.posiciones), inline=False)
+            embed.add_field(name="⏰ Horarios", value=str(self.horarios), inline=False)
+            embed.add_field(name="🏆 Experiencia", value=str(self.experiencia), inline=False)
 
-        await interaction.followup.send(
-            "✅ **Solicitud enviada correctamente.**\n\n"
-            f"Tu canal privado de prueba: {channel.jump_url}\n\n"
-            "El staff revisará tu información. Hasta ser aceptado, el resto del servidor seguirá bloqueado."
-        )
+            await channel.send(
+                content=f"{member.mention} — tu prueba privada está lista para revisión.",
+                embed=embed,
+                view=TicketStaffView(),
+            )
+
+            await interaction.followup.send(
+                "✅ **Solicitud enviada correctamente.**\n\n"
+                f"Tu canal privado de prueba: {channel.jump_url}\n\n"
+                "El staff revisará tu información. Hasta ser aceptado, el resto del servidor seguirá bloqueado."
+            )
 
 
-class TryoutPanelView(discord.ui.View):
+
+    async def on_error(self, interaction, error):
+        await report_interaction_error(interaction, error)
+
+
+class TryoutPanelView(ReliableView):
     def __init__(self):
         super().__init__(timeout=None)
 
@@ -1662,7 +1703,7 @@ class TryoutPanelView(discord.ui.View):
             )
 
 
-class WelcomeView(discord.ui.View):
+class WelcomeView(ReliableView):
     def __init__(self):
         super().__init__(timeout=None)
 
@@ -1710,7 +1751,7 @@ class WelcomeView(discord.ui.View):
             await interaction.response.send_message("No encontré el canal de redes sociales.", ephemeral=True)
 
 
-class DirectTryoutView(discord.ui.View):
+class DirectTryoutView(ReliableView):
     """Botón persistente que solo debe usarse en el DM privado."""
     def __init__(self):
         super().__init__(timeout=None)
@@ -1734,21 +1775,10 @@ class DirectTryoutView(discord.ui.View):
             await interaction.response.send_message("❌ No pude encontrar el servidor. Avísale al staff.")
             return
 
-        try:
-            member = guild.get_member(interaction.user.id) or await guild.fetch_member(interaction.user.id)
-        except (discord.NotFound, discord.Forbidden, discord.HTTPException):
-            member = None
-
-        if not member:
-            await interaction.response.send_message(
-                "❌ Ya no apareces dentro del servidor Santacho FC."
-            )
-            return
-
         await interaction.response.send_modal(TryoutModal())
 
 
-class AvailabilityView(discord.ui.View):
+class AvailabilityView(ReliableView):
     def __init__(self):
         super().__init__(timeout=None)
 
@@ -1757,25 +1787,32 @@ class AvailabilityView(discord.ui.View):
             await interaction.response.send_message("No pude actualizar esta disponibilidad.", ephemeral=True)
             return
 
-        embed = discord.Embed.from_dict(interaction.message.embeds[0].to_dict())
-        mention = interaction.user.mention
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        async with operation_lock(("availability", interaction.message.id)):
+            message = await interaction.channel.fetch_message(interaction.message.id)
+            embed = discord.Embed.from_dict(message.embeds[0].to_dict())
+            mention = interaction.user.mention
 
-        while len(embed.fields) < 3:
-            embed.add_field(name="—", value="—", inline=False)
+            while len(embed.fields) < 3:
+                embed.add_field(name="—", value="—", inline=False)
 
-        field_values = []
-        for field in embed.fields[:3]:
-            lines = [line.strip() for line in (field.value or "").splitlines() if line.strip() and line.strip() != "—"]
-            lines = [line for line in lines if line != mention]
-            field_values.append(lines)
+            field_values = []
+            for field in embed.fields[:3]:
+                lines = [line.strip() for line in (field.value or "").splitlines() if line.strip() and line.strip() != "—"]
+                lines = [line for line in lines if line != mention]
+                field_values.append(lines)
 
-        field_values[target_index].append(mention)
+            field_values[target_index].append(mention)
 
-        names = ["✅ 𝐃𝐈𝐒𝐏𝐎𝐍𝐈𝐁𝐋𝐄", "❌ 𝐍𝐎 𝐏𝐔𝐄𝐃𝐎", "❓ 𝐏𝐎𝐑 𝐂𝐎𝐍𝐅𝐈𝐑𝐌𝐀𝐑"]
-        for i in range(3):
-            embed.set_field_at(i, name=names[i], value="\n".join(field_values[i]) or "—", inline=False)
+            if any(len("\n".join(values)) > 1024 for values in field_values):
+                await interaction.followup.send("El panel está lleno; pide al liderazgo abrir otro.", ephemeral=True)
+                return
+            names = ["✅ 𝐃𝐈𝐒𝐏𝐎𝐍𝐈𝐁𝐋𝐄", "❌ 𝐍𝐎 𝐏𝐔𝐄𝐃𝐎", "❓ 𝐏𝐎𝐑 𝐂𝐎𝐍𝐅𝐈𝐑𝐌𝐀𝐑"]
+            for i in range(3):
+                embed.set_field_at(i, name=names[i], value="\n".join(field_values[i]) or "—", inline=False)
 
-        await interaction.response.edit_message(embed=embed, view=self)
+            await message.edit(embed=embed, view=self)
+            await interaction.followup.send("✅ Disponibilidad guardada.", ephemeral=True)
 
     @discord.ui.button(label="Disponible", emoji="✅", style=discord.ButtonStyle.success, custom_id="santacho:availability:yes")
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -1816,6 +1853,7 @@ class PositionSelect(discord.ui.Select):
         if not interaction.guild or not isinstance(interaction.user, discord.Member):
             return
 
+        await interaction.response.defer(ephemeral=True, thinking=True)
         member = interaction.user
         guild = interaction.guild
 
@@ -1831,19 +1869,19 @@ class PositionSelect(discord.ui.Select):
             if selected:
                 await member.add_roles(*selected, reason="Santacho FC positions")
         except discord.Forbidden:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 "No pude darte los roles. El rol del bot debe estar arriba de los roles de posición.",
                 ephemeral=True
             )
             return
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "✅ Posiciones: " + ", ".join(r.name for r in selected),
             ephemeral=True
         )
 
 
-class PositionPanelView(discord.ui.View):
+class PositionPanelView(ReliableView):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(PositionSelect())
@@ -1873,7 +1911,7 @@ async def required_role(guild, role_name):
         return None
 
 
-class TicketStaffView(discord.ui.View):
+class TicketStaffView(ReliableView):
     def __init__(self):
         super().__init__(timeout=None)
 
@@ -1881,6 +1919,10 @@ class TicketStaffView(discord.ui.View):
         if not isinstance(interaction.user, discord.Member) or not is_staff(interaction.user):
             await interaction.response.send_message("⛔ Solo staff.", ephemeral=True)
             return False
+        if not interaction.guild or interaction.guild.id != GUILD_ID or not isinstance(interaction.channel, discord.TextChannel) or not ticket_user_id(interaction.channel):
+            await interaction.response.send_message("Este canal no es una prueba válida de Santacho FC.", ephemeral=True)
+            return False
+        await interaction.response.defer(ephemeral=True, thinking=True)
         return True
 
     async def target(self, interaction):
@@ -1893,9 +1935,6 @@ class TicketStaffView(discord.ui.View):
 
         # Primero usa la caché local. Si Discord no cargó al miembro,
         # lo consulta directamente por API usando el ID guardado en el ticket.
-        member = interaction.guild.get_member(uid)
-        if member:
-            return member
 
         try:
             return await interaction.guild.fetch_member(uid)
@@ -1907,112 +1946,146 @@ class TicketStaffView(discord.ui.View):
         if not await self.staff_check(interaction):
             return
 
-        member = await self.target(interaction)
-        role = await required_role(interaction.guild, ROLE_TRIAL)
+        async with operation_lock(("ticket", interaction.channel.id)):
+            current = await interaction.guild.fetch_channel(interaction.channel.id)
+            if "ticket_status:closed" in (current.topic or ""):
+                await interaction.followup.send("Este ticket ya está archivado.", ephemeral=True)
+                return
+            member = await self.target(interaction)
+            if member and any(r.name in {ROLE_ROSTER, ROLE_STARTER, ROLE_COMMUNITY} for r in member.roles):
+                await interaction.followup.send("Este jugador ya está aceptado en el club.", ephemeral=True)
+                return
+            role = await required_role(interaction.guild, ROLE_TRIAL)
 
-        if not member:
-            await interaction.response.send_message(
-                "❌ No pude localizar al jugador del ticket. El ID guardado no corresponde a un miembro actual del servidor.",
-                ephemeral=True
-            )
-            return
+            if not member:
+                await interaction.followup.send(
+                    "❌ No pude localizar al jugador del ticket. El ID guardado no corresponde a un miembro actual del servidor.",
+                    ephemeral=True
+                )
+                return
 
-        if not role:
-            await interaction.response.send_message(
-                "❌ No pude encontrar ni recrear el rol **A PRUEBA**.",
-                ephemeral=True
-            )
-            return
+            if not role:
+                await interaction.followup.send(
+                    "❌ No pude encontrar ni recrear el rol **A PRUEBA**.",
+                    ephemeral=True
+                )
+                return
 
-        try:
-            if role not in member.roles:
-                await member.add_roles(role, reason=f"Santacho FC tryout aprobado por {interaction.user}")
-            await interaction.response.send_message(f"🧪 {member.mention} quedó **A PRUEBA**.")
-        except discord.Forbidden:
-            await interaction.response.send_message(
-                "❌ Discord no me deja asignar el rol. Pon el rol de **Santacho FC** por encima de **A PRUEBA** en Ajustes → Roles.",
-                ephemeral=True
-            )
-        except discord.HTTPException as exc:
-            await interaction.response.send_message(
-                f"❌ Discord rechazó el cambio de rol: `{exc}`",
-                ephemeral=True
-            )
+            try:
+                if role not in member.roles:
+                    await member.add_roles(role, reason=f"Santacho FC tryout aprobado por {interaction.user}")
+                await interaction.followup.send(f"🧪 {member.mention} quedó **A PRUEBA**.")
+            except discord.Forbidden:
+                await interaction.followup.send(
+                    "❌ Discord no me deja asignar el rol. Pon el rol de **Santacho FC** por encima de **A PRUEBA** en Ajustes → Roles.",
+                    ephemeral=True
+                )
+            except discord.HTTPException as exc:
+                await interaction.followup.send(
+                    f"❌ Discord rechazó el cambio de rol: `{exc}`",
+                    ephemeral=True
+                )
 
     @discord.ui.button(label="Plantilla", emoji="⭐", style=discord.ButtonStyle.success, custom_id="santacho:v3:roster")
     async def roster(self, interaction, button):
         if not await self.staff_check(interaction):
             return
 
-        member = await self.target(interaction)
-        roster = await required_role(interaction.guild, ROLE_ROSTER)
-        trial = role_by_name(interaction.guild, ROLE_TRIAL)
-        community = role_by_name(interaction.guild, ROLE_COMMUNITY)
+        async with operation_lock(("ticket", interaction.channel.id)):
+            current = await interaction.guild.fetch_channel(interaction.channel.id)
+            if "ticket_status:closed" in (current.topic or ""):
+                await interaction.followup.send("Este ticket ya está archivado.", ephemeral=True)
+                return
+            member = await self.target(interaction)
+            roster = await required_role(interaction.guild, ROLE_ROSTER)
+            trial = role_by_name(interaction.guild, ROLE_TRIAL)
+            community = role_by_name(interaction.guild, ROLE_COMMUNITY)
 
-        if not member:
-            await interaction.response.send_message(
-                "❌ No pude localizar al jugador del ticket. El ID guardado no corresponde a un miembro actual del servidor.",
-                ephemeral=True
-            )
-            return
+            if not member:
+                await interaction.followup.send(
+                    "❌ No pude localizar al jugador del ticket. El ID guardado no corresponde a un miembro actual del servidor.",
+                    ephemeral=True
+                )
+                return
 
-        if not roster:
-            await interaction.response.send_message(
-                "❌ No pude encontrar ni recrear el rol **PLANTILLA**.",
-                ephemeral=True
-            )
-            return
+            if not roster:
+                await interaction.followup.send(
+                    "❌ No pude encontrar ni recrear el rol **PLANTILLA**.",
+                    ephemeral=True
+                )
+                return
 
-        try:
-            was_accepted = (
-                roster in member.roles
-                or (community is not None and community in member.roles)
-            )
+            try:
+                was_accepted = (
+                    roster in member.roles
+                    or (community is not None and community in member.roles)
+                )
 
-            if trial and trial in member.roles:
-                await member.remove_roles(trial, reason=f"Santacho FC: promoción por {interaction.user}")
-            if roster not in member.roles:
-                await member.add_roles(roster, reason=f"Santacho FC: incorporación por {interaction.user}")
-            if community and community not in member.roles:
-                await member.add_roles(community, reason=f"Santacho FC: acceso habilitado por {interaction.user}")
+                if trial and trial in member.roles:
+                    await member.remove_roles(trial, reason=f"Santacho FC: promoción por {interaction.user}")
+                if roster not in member.roles:
+                    await member.add_roles(roster, reason=f"Santacho FC: incorporación por {interaction.user}")
+                if community and community not in member.roles:
+                    await member.add_roles(community, reason=f"Santacho FC: acceso habilitado por {interaction.user}")
 
-            if not was_accepted:
-                await send_official_welcome(member, approved_by=interaction.user)
+                if not was_accepted:
+                    await send_official_welcome(member, approved_by=interaction.user)
 
-            accepted = text_by_name(interaction.guild, CH_ACCEPTED)
-            if accepted:
-                await accepted.send(f"⭐ {member.mention} se incorpora a **Santacho FC**.")
+                accepted = text_by_name(interaction.guild, CH_ACCEPTED)
+                if accepted and not was_accepted:
+                    await accepted.send(f"⭐ {member.mention} se incorpora a **Santacho FC**.")
 
-            await refresh_roster_panel(interaction.guild)
-            await interaction.response.send_message(f"⭐ {member.mention} pasó a **PLANTILLA**.")
-        except discord.Forbidden:
-            await interaction.response.send_message(
-                "❌ Discord no me deja cambiar esos roles. Pon el rol de **Santacho FC** por encima de **PLANTILLA** y **A PRUEBA** en Ajustes → Roles.",
-                ephemeral=True
-            )
-        except discord.HTTPException as exc:
-            await interaction.response.send_message(
-                f"❌ Discord rechazó el cambio de rol: `{exc}`",
-                ephemeral=True
-            )
+                await refresh_roster_panel(interaction.guild)
+                await interaction.followup.send(f"⭐ {member.mention} pasó a **PLANTILLA**.")
+            except discord.Forbidden:
+                await interaction.followup.send(
+                    "❌ Discord no me deja cambiar esos roles. Pon el rol de **Santacho FC** por encima de **PLANTILLA** y **A PRUEBA** en Ajustes → Roles.",
+                    ephemeral=True
+                )
+            except discord.HTTPException as exc:
+                await interaction.followup.send(
+                    f"❌ Discord rechazó el cambio de rol: `{exc}`",
+                    ephemeral=True
+                )
 
     @discord.ui.button(label="Rechazar", emoji="❌", style=discord.ButtonStyle.danger, custom_id="santacho:v3:reject")
     async def reject(self, interaction, button):
         if not await self.staff_check(interaction):
             return
-        member = await self.target(interaction)
-        name = member.mention if member else "Jugador"
-        await interaction.response.send_message(
-            f"❌ {name} no fue seleccionado en esta oportunidad."
-        )
+        async with operation_lock(("ticket", interaction.channel.id)):
+            current = await interaction.guild.fetch_channel(interaction.channel.id)
+            if "ticket_status:closed" in (current.topic or ""):
+                await interaction.followup.send("Este ticket ya está archivado.", ephemeral=True)
+                return
+            member = await self.target(interaction)
+            if member and any(r.name in {ROLE_ROSTER, ROLE_STARTER, ROLE_COMMUNITY} for r in member.roles):
+                await interaction.followup.send("El jugador ya está aceptado. Gestiona su estado con los comandos de plantilla.", ephemeral=True)
+                return
+            trial_role = role_by_name(interaction.guild, ROLE_TRIAL)
+            if member and trial_role and trial_role in member.roles:
+                await member.remove_roles(trial_role, reason=f"Santacho FC: rechazo por {interaction.user.id}")
+            name = member.mention if member else "Jugador"
+            await interaction.followup.send(
+                f"❌ {name} no fue seleccionado en esta oportunidad."
+            )
 
-    @discord.ui.button(label="Cerrar", emoji="🔒", style=discord.ButtonStyle.secondary, custom_id="santacho:v3:close")
+    @discord.ui.button(label="Cerrar y archivar", emoji="🔒", style=discord.ButtonStyle.secondary, custom_id="santacho:v3:close")
     async def close(self, interaction, button):
         if not await self.staff_check(interaction):
             return
-        await interaction.response.send_message("🔒 Cerrando ticket...")
-        await asyncio.sleep(1.2)
-        await interaction.channel.delete(reason="Santacho FC ticket cerrado")
+        async with operation_lock(("ticket", interaction.channel.id)):
+            current = await interaction.guild.fetch_channel(interaction.channel.id)
+            if "ticket_status:closed" in (current.topic or ""):
+                await interaction.followup.send("Este ticket ya está archivado.", ephemeral=True)
+                return
+            channel = interaction.channel
+            topic = (channel.topic or "") + " | ticket_status:closed"
+            await channel.edit(name=f"cerrada-{channel.id}", topic=topic,
+                               overwrites=staff_only_overwrites(interaction.guild),
+                               reason=f"Santacho FC: archivo por {interaction.user.id}")
+            if interaction.message:
+                await interaction.message.edit(view=None)
+            await interaction.followup.send("🔒 Ticket archivado. Historial conservado y visible solo al staff.", ephemeral=True)
 
 
 # =========================================================
@@ -2201,7 +2274,7 @@ def valid_social_url(value):
 
 async def load_socials(guild):
     channel = await get_data_channel(guild)
-    async for message in channel.history(limit=500):
+    async for message in channel.history(limit=None):
         if message.author == guild.me and message.content.startswith(SOCIAL_MARKER):
             try:
                 return json.loads(message.content.split("\n", 1)[1])
@@ -2213,7 +2286,7 @@ async def load_socials(guild):
 async def save_socials(guild, data):
     channel = await get_data_channel(guild)
     content = SOCIAL_MARKER + "\n" + json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    async for message in channel.history(limit=500):
+    async for message in channel.history(limit=None):
         if message.author == guild.me and message.content.startswith(SOCIAL_MARKER):
             await message.edit(content=content)
             return
@@ -2296,7 +2369,7 @@ async def refresh_control_center(guild):
     embed.add_field(name="📊 Estadísticas", value="`/sumarstats` • `/setstats` • `/jugador` • `/tabla` • `/premio`", inline=False)
     embed.add_field(name="🧠 Vestuario", value="`/ausencia` • `/sugerencia`", inline=False)
     embed.add_field(name="🌐 Redes", value="`/configurarredes`", inline=False)
-    embed.add_field(name="🤖 Sistema", value="`/paneles` • `/organizar` • `/configurarbots`", inline=False)
+    embed.add_field(name="🤖 Sistema", value="`/diagnostico` • `/paneles` • `/organizar` • `/configurarbots`", inline=False)
     await upsert_clean_embed(channel, embed.title, embed)
 
 
@@ -2329,8 +2402,8 @@ async def get_data_channel(guild):
 async def find_stat_message(guild, user_id: int):
     channel = await get_data_channel(guild)
     marker = f"{STAT_MARKER}{user_id}"
-    async for message in channel.history(limit=500):
-        if message.author == guild.me and message.content.startswith(marker):
+    async for message in channel.history(limit=None):
+        if message.author == guild.me and message.content.split("\n", 1)[0] == marker:
             return message
     return None
 
@@ -2367,7 +2440,7 @@ async def load_player_stats(guild, member):
 async def all_player_stats(guild):
     channel = await get_data_channel(guild)
     rows = []
-    async for message in channel.history(limit=500):
+    async for message in channel.history(limit=None):
         if message.author != guild.me or not message.content.startswith(STAT_MARKER):
             continue
         first = message.content.split("\n", 1)[0]
@@ -2665,8 +2738,11 @@ class SantachoBot(commands.Bot):
         intents = discord.Intents.default()
         intents.guilds = True
         intents.members = True
-        super().__init__(command_prefix="!", intents=intents)
+        super().__init__(command_prefix="!", intents=intents,
+                         allowed_mentions=discord.AllowedMentions(everyone=False, roles=False, users=True, replied_user=False))
         self.guild_id = guild_id
+        self.startup_started = False
+        self.startup_complete = False
 
     async def setup_hook(self):
         self.add_view(TryoutPanelView())
@@ -2801,6 +2877,7 @@ async def organizar(interaction: discord.Interaction):
 @app_commands.guild_only()
 @app_commands.command(name="jugador", description="Muestra las estadísticas de un jugador.")
 async def jugador(interaction: discord.Interaction, jugador: discord.Member):
+    await interaction.response.defer(ephemeral=True, thinking=True)
     stats = await load_player_stats(interaction.guild, jugador)
     posiciones = " / ".join(member_positions(jugador)) or "Sin posición"
     embed = discord.Embed(title=f"📊 {jugador.display_name}", color=GOLD)
@@ -2810,7 +2887,7 @@ async def jugador(interaction: discord.Interaction, jugador: discord.Member):
     embed.add_field(name="Asistencias", value=str(stats["asistencias"]), inline=True)
     embed.add_field(name="MVP", value=str(stats["mvp"]), inline=True)
     embed.add_field(name="Porterías a cero", value=str(stats["porterias"]), inline=True)
-    await interaction.response.send_message(embed=embed)
+    await interaction.followup.send(embed=embed)
 
 
 @app_commands.guild_only()
@@ -2827,15 +2904,17 @@ async def sumarstats(
     if not isinstance(interaction.user, discord.Member) or not is_leadership(interaction.user):
         await interaction.response.send_message("⛔ Solo liderazgo puede registrar estadísticas.", ephemeral=True)
         return
-    stats = await load_player_stats(interaction.guild, jugador)
-    stats["pj"] += partidos
-    stats["goles"] += goles
-    stats["asistencias"] += asistencias
-    stats["mvp"] += mvp
-    stats["porterias"] += porterias
-    await save_player_stats(interaction.guild, jugador, stats)
-    await refresh_public_player_panels(interaction.guild)
-    await interaction.response.send_message(f"✅ Estadísticas actualizadas para **{jugador.display_name}**.", ephemeral=True)
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    async with operation_lock(("stats", interaction.guild.id, jugador.id)):
+        stats = await load_player_stats(interaction.guild, jugador)
+        stats["pj"] += partidos
+        stats["goles"] += goles
+        stats["asistencias"] += asistencias
+        stats["mvp"] += mvp
+        stats["porterias"] += porterias
+        await save_player_stats(interaction.guild, jugador, stats)
+        await refresh_public_player_panels(interaction.guild)
+        await interaction.followup.send(f"✅ Estadísticas actualizadas para **{jugador.display_name}**.", ephemeral=True)
 
 
 @app_commands.guild_only()
@@ -2852,10 +2931,12 @@ async def setstats(
     if not isinstance(interaction.user, discord.Member) or not is_staff(interaction.user):
         await interaction.response.send_message("⛔ Solo staff puede usar este comando.", ephemeral=True)
         return
-    stats = {"pj": partidos, "goles": goles, "asistencias": asistencias, "mvp": mvp, "porterias": porterias}
-    await save_player_stats(interaction.guild, jugador, stats)
-    await refresh_public_player_panels(interaction.guild)
-    await interaction.response.send_message("✅ Estadísticas reemplazadas.", ephemeral=True)
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    async with operation_lock(("stats", interaction.guild.id, jugador.id)):
+        stats = {"pj": partidos, "goles": goles, "asistencias": asistencias, "mvp": mvp, "porterias": porterias}
+        await save_player_stats(interaction.guild, jugador, stats)
+        await refresh_public_player_panels(interaction.guild)
+        await interaction.followup.send("✅ Estadísticas reemplazadas.", ephemeral=True)
 
 
 @app_commands.guild_only()
@@ -3327,13 +3408,41 @@ async def modoacceso(interaction: discord.Interaction):
     await interaction.followup.send(
         "✅ **Modo acceso restringido activado.**\n\n"
         "Los nuevos miembros ahora solo verán:\n"
-        "• 👋 bienvenida\n"
         "• 📜 reglas\n"
-        "• 📝 quiero-probar\n"
+        "• 🧪 hacer-pruebas\n"
         "• su ticket privado de prueba\n\n"
         "Al pasarlos a **PLANTILLA**, el resto del servidor se desbloquea.",
         ephemeral=True
     )
+
+
+@app_commands.guild_only()
+@app_commands.command(name="diagnostico", description="Revisa conexión, permisos y acceso de nuevos miembros.")
+async def diagnostico(interaction: discord.Interaction):
+    if not isinstance(interaction.user, discord.Member) or not is_staff(interaction.user):
+        await interaction.response.send_message("⛔ Solo staff.", ephemeral=True)
+        return
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    embed = discord.Embed(title="🛠️ Estado de Santacho FC", color=GOLD,
+        description="\n".join(audit_guild(interaction.guild))[:4000])
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
+
+def audit_guild(guild):
+    report = [f"Conexión: activa · {round(bot.latency * 1000)} ms",
+              f"Inicio completado: {'sí' if bot.startup_complete else 'no'}"]
+    missing = [name for name in ("manage_roles", "manage_channels", "view_channel", "send_messages", "read_message_history")
+               if not getattr(guild.me.guild_permissions, name)]
+    report.append("Permisos faltantes del bot: " + (", ".join(missing) if missing else "ninguno"))
+    blocked = [name for name in (ROLE_TRIAL, ROLE_ROSTER, ROLE_COMMUNITY)
+               if not role_by_name(guild, name) or not role_by_name(guild, name).is_assignable()]
+    report.append("Roles por revisar: " + (", ".join(blocked) if blocked else "ninguno"))
+    visible = [ch for ch in guild.channels if not isinstance(ch, discord.CategoryChannel)
+               and ch.permissions_for(guild.default_role).view_channel]
+    extra = [ch.mention for ch in visible if ch.name not in {CH_RULES, CH_TRY}]
+    report.append("Canales visibles para @everyone fuera de Reglas y Hacer pruebas: " + (", ".join(extra) if extra else "ninguno"))
+    report.append("Los permisos individuales y otros roles de nuevos miembros requieren revisión adicional.")
+    return report
 
 
 # =========================================================
@@ -3363,6 +3472,7 @@ def get_config():
 TOKEN, GUILD_ID = get_config()
 bot = SantachoBot(GUILD_ID)
 
+bot.tree.add_command(diagnostico)
 bot.tree.add_command(disponibilidad)
 bot.tree.add_command(convocatoria)
 bot.tree.add_command(resultado)
@@ -3391,6 +3501,8 @@ bot.tree.add_command(baja)
 
 @bot.event
 async def on_member_join(member: discord.Member):
+    if member.guild.id != GUILD_ID:
+        return
     # No publica nada en #bienvenida al entrar.
     # La prueba comienza únicamente por DM.
     await send_private_tryout_dm(member)
@@ -3398,6 +3510,9 @@ async def on_member_join(member: discord.Member):
 
 @bot.event
 async def on_ready():
+    if bot.startup_started:
+        return
+    bot.startup_started = True
     print("\n" + "=" * 62)
     print(f"🟡⚫ SANTACHO FC RAILWAY conectado como {bot.user}")
     print("=" * 62)
@@ -3413,31 +3528,47 @@ async def on_ready():
         if not guild.me.guild_permissions.administrator:
             print("⚠️ Recomendación: dale Administrador al bot.")
 
-        await migrate_names(guild)
-        await ensure_roles(guild)
-        await ensure_structure(guild)
-        await apply_v6_layout(guild)
-        await configure_music_bot(guild)
-        await ensure_panels(guild)
-        await cleanup_old_public_tryout_welcomes(guild)
-        await ensure_music_panel(guild)
-
-        try:
-            if guild.name != SERVER_NAME:
-                await guild.edit(name=SERVER_NAME)
-        except discord.HTTPException:
-            pass
+        if os.getenv("SANTACHO_FULL_SETUP", "0") == "1":
+            await migrate_names(guild)
+            await ensure_roles(guild)
+            await ensure_structure(guild)
+            await apply_v6_layout(guild)
+            await configure_music_bot(guild)
+            await ensure_panels(guild)
+            await ensure_music_panel(guild)
+        else:
+            print("✅ Arranque rápido: conserva canales, roles y mensajes existentes.")
+            ch = text_by_name(guild, CH_TRY)
+            if ch:
+                embed = discord.Embed(title="🧪 HACER PRUEBAS — SANTACHO FC", color=GOLD,
+                    description="**1.** Lee las reglas.\n**2.** Pulsa el botón para recibir el formulario por DM.\n**3.** Completa tus datos y espera la revisión en tu ticket privado.\n\nSi no recibes el DM, habilita los mensajes privados de este servidor y vuelve a pulsar. El staff habilita el acceso al aceptarte en PLANTILLA.")
+                async for msg in ch.history(limit=60):
+                    if msg.author == guild.me and msg.components:
+                        await msg.edit(embed=embed, view=TryoutPanelView())
+                        break
+                else:
+                    await ch.send(embed=embed, view=TryoutPanelView())
+            await refresh_control_center(guild)
+        bot.startup_complete = True
+        for line in audit_guild(guild):
+            print(line)
 
         print("\n[6/6] TERMINADO")
-        print("✅ Santacho FC V8.1 LOCKED ONBOARDING quedó diseñado y actualizado.")
+        print("✅ Santacho FC V8.4 listo: controles persistentes, archivo de tickets y arranque rápido.")
         print("✅ Comandos: /modoacceso /reenviarprueba /testbienvenida /disenarsantacho /disponibilidad /convocatoria /alineacion /resultado /jugador /sumarstats /setstats /plantilla /tabla /premio /ausencia /sugerencia /fichar /titular /baja /configurarredes /configurarmusica /paneles /organizar /configurarbots")
 
     except Exception as exc:
         print(f"\n❌ ERROR: {type(exc).__name__}: {exc}")
-        print("Toma una captura y envíamela.")
+        logging.getLogger("santacho").error("Startup incomplete; use /diagnostico")
 
 
-try:
-    bot.run(TOKEN, log_handler=None)
-except discord.LoginFailure:
-    print("❌ Token inválido.")
+@bot.tree.error
+async def slash_error(interaction, error):
+    await report_interaction_error(interaction, error)
+
+
+if __name__ == "__main__":
+    try:
+        bot.run(TOKEN)
+    except discord.LoginFailure:
+        raise SystemExit("❌ Token inválido. Actualiza DISCORD_TOKEN en Railway.")
